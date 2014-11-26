@@ -1,3 +1,4 @@
+
 //MircroArcade EECS 183 2014 Showcase
 
 //Breaker Breaker
@@ -12,8 +13,9 @@
 
 #include "stdlib.h"
 
+#include <Adafruit_LEDBackpack.h>
 
-
+#include <Adafruit_GFX.h>
 
 
 class Board		
@@ -241,12 +243,14 @@ public:
   // on the left pixel with initial direction to the left and up. Next 
 
   //sets up the board according to which level the game is on.
+  // YAY
 
   void initBoard();
 
 
 
   //EFFECTS:Displays the pixels with strength>0 on the board
+  // YAY
 
   void displayBlocks();
 
@@ -257,6 +261,7 @@ public:
   //EFFECTS: updates the balls position based on what direction the ball 
 
   //is traveling. Be careful to not let the ball go off the board!
+  // YAY
 
   void updateBall();
 
@@ -488,7 +493,7 @@ void loop()
 
   int lives = 3;		
 
-  int level = 0;		
+  int level = 1;		
 
   int ballRow = 0;		
 
@@ -661,5 +666,188 @@ void loop()
   boolean getPaused() {
 
     return paused;
+
+  void initBoard() {
+    
+    paddlePos = 4;
+    setPaddlePos(paddlePos);
+    ballRow = paddlePos;
+    ballCol = 15;
+    ballRight = false;
+    ballDown = false;
+    
+    if (level == 1) {
+      for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 1; j++) {
+          strength[i][j] = 1;
+        }
+      }
+    }
+    
+     if (level == 2) {
+      for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 2; j++) {
+          strength[i][j] = 1;
+        }
+      }
+    }
+    
+    if (level == 3) {
+      for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 2; j++) {
+          if (j == 0) {
+            strength[i][j] = 2;
+          }
+          if (j == 1) {
+            strength[i][j] = 1;
+          }
+      }
+    }
+    
+    if (level == 4) {
+      for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 3; j++) {
+          if (j == 0) {
+            strength[i][j] = 3;
+          }
+          if (j == 1) {
+            strength[i][j] = 2;
+          }
+          if (j == 2) {
+            strength[i][j] = 1;
+          }
+        }
+      }
+    }
+    
+     if (level == 5) {
+      for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 10; j++) {
+          if (j == 0) {
+            strength[i][j] = 3;
+          }
+          if (j == 1) {
+            strength[i][j] = 0;
+          }
+          if (j == 2) {
+            strength[i][j] = 2;
+          }
+          if ((j == 8) || (i == 9)) {
+            strength[i][j] = 1;
+          }
+        }
+      }
+    }
+ 
+
+  void displayBlocks() {
+    for (int i = 0, i < 8, i++) {
+      for (int j = 0, i < 16, I++) {
+        
+        if (strength[i][j] > 0) {
+          drawPixel (j, i);
+        }
+      }
+    }
+  }
+ 
+
+  void updateBall() {
+    
+    ballRow = getBallRow;
+    ballCol = getBallCol;
+  
+    // For upper corner-cases
+    if ((ballCol == 0 || ball Col == 7) && ballRow == 15) {
+      if (ballCol == 0 && ballLeft == true && ballDown == false) { // coming from left/up
+        ballLeft = false;
+        ballRight = true;
+        ballDown = true;
+        ballCol += 1;
+        ballRow += 1;
+      }
+      if (ballCol == 7 && ballRight == true && ballDown == false) { // coming from right/up
+        ballRight = false;
+        ballLeft = true;
+        ballDown = true;
+        ballCol -= 1;
+        ballRow -= 1;
+    }
+    else if ((ballCol == 0) || (ballCol == 7)) {
+      if (ballRight == true) {
+        ballRight = false;
+        ballLeft = true;
+        if (ballDown == true) { // Ball is going down and right
+          ballRow -= 1;
+          ballCol -= 1;
+        }
+        else { // Ball is going up and right
+          ballRow += 1;
+          ballCol -= 1;
+        }
+      }
+      else { // Ball is going left
+        ballLeft = false;
+        ballRight = true;
+        if (ballDown == true) { // Ball is going down and left
+          ballRow -= 1;
+          ballCol += 1;
+        }
+        else { // Ball is going up and left
+          ballRow += 1;
+          ballCol += 1;
+        }
+      }
+    }
+    
+    else if (ballRow == 15) {
+      if (ballDown == false && ballRight == false && ballLeft == false) {
+        ballRow -=;
+        ballDown = false;
+      }
+      else if (ballDown == false && (ballRight == true || ballLeft == true)) {
+        if (ballRight == true) {
+          ballRight == false;
+          ballLeft == true;
+          ballDown == true;
+          ballCol += 1;
+          ballRow -= 1;
+        }
+        if (ballLeft == true) {
+          ballLeft == false;
+          ballRight == true;
+          ballDown == true;
+          ballCol -= 1;
+          ballRow -= 1;
+        }
+    }
+    
+    else { // Not on a screen edge
+      if (ballRight == true) {
+        ballCol += 1;
+      }
+      if (ballLeft == true) {
+        ballCol -= 1;
+      }
+      if (ballDown == true) {
+        ballRow -= 1;
+      }
+      if (ballDown == false) {
+        ballRow += 1;
+      }
+    
+    }
+    
+      
+    
+    
+    
+    
+  }
+    
+    
+  }
+  
+  }
 
   }
