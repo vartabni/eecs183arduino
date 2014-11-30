@@ -688,7 +688,7 @@ void initBoard() {
     
     if (level == 1) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 1; j++) {
+            for (int j = 15; j > 14; j--) {
                 strength[i][j] = 1;
             }
         }
@@ -696,7 +696,7 @@ void initBoard() {
     
     if (level == 2) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 2; j++) {
+            for (int j = 15; j > 13; j--) {
                 strength[i][j] = 1;
             }
         }
@@ -704,11 +704,11 @@ void initBoard() {
     
     if (level == 3) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 2; j++) {
-                if (j == 0) {
+            for (int j = 15; j > 12; j--) {
+                if (j == 15) {
                     strength[i][j] = 2;
                 }
-                if (j == 1) {
+                if (j == 14) {
                     strength[i][j] = 1;
                 }
             }
@@ -717,14 +717,14 @@ void initBoard() {
     
     if (level == 4) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (j == 0) {
+            for (int j = 15; j > 12; j--) {
+                if (j == 15) {
                     strength[i][j] = 3;
                 }
-                if (j == 1) {
+                if (j == 14) {
                     strength[i][j] = 2;
                 }
-                if (j == 2) {
+                if (j == 13) {
                     strength[i][j] = 1;
                 }
             }
@@ -733,18 +733,28 @@ void initBoard() {
     
     if (level == 5) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 10; j++) {
-                if (j == 0) {
+            for (int j = 16; j > 5; j--) {
+                if (j == 15) {
                     strength[i][j] = 3;
                 }
-                if (j == 1) {
+                if (j == 14) {
                     strength[i][j] = 0;
                 }
-                if (j == 2) {
+                if (j == 13) {
                     strength[i][j] = 2;
                 }
-                if ((j == 8) || (i == 9)) {
+                if ((j == 6) || (i == 7)) {
                     strength[i][j] = 1;
+                }
+            }
+        }
+    }
+    
+    if (level >= 6) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 15; j > 10; j--) {
+                if (j == 15 || j == 14 || j == 13 || j == 7 || j == 6) {
+                    strength[i][j] = rand() % 3 + 1;
                 }
             }
         }
@@ -1109,7 +1119,7 @@ void initStrength() {
 //EFFECTS:turns off all the pixels on the board
 
 void clearBoard() {
-    
+    fillscreen(0);
 }
 
 //REQUIRES:  val is the value of the potentiometer
@@ -1119,6 +1129,7 @@ void clearBoard() {
 //EFFECTS: returns the column position of the left pixel of the paddle
 
 int calculatePaddlePosition(int val) {
+  
     return 0;
 }
 
@@ -1129,7 +1140,18 @@ int calculatePaddlePosition(int val) {
 //use text size 1 and delay of 50
 
 void printMessage(int number) {
-    
+    setRotation(0); // Experiment with 2 if 0 doesn't work
+    if (number >= 10) { // Scrolls if # is greater than 10
+      setTextWrap(false);
+      static_cast<char>(number);
+      drawChar(3, 6, number, 1, 0, 1);
+      delay(50);
+    }
+    else { // Displays #'s 10 or less normally
+    static_cast<char>(number);
+    drawChar(3, 6, number, 1, 0, 1);
+    delay(50);
+    } 
 }
 
 //EFFECTS:displays string text needed(suchs as "LIVES" or "LEVEL") on the board. If it
@@ -1139,6 +1161,12 @@ void printMessage(int number) {
 //use text size 1 and delay of 50
 
 void printMessage(String message) {
+  setRotation(0); // Experiment with 2 if 0 doesn't work
+  setCursor(0, 6);
+  setTextColor(1);
+  setTextSize(1);
+  setTextWrap(false);
+  
     
 }
 
