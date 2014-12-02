@@ -13,10 +13,6 @@
 
 #include "stdlib.h"
 
-#include <Adafruit_LEDBackpack.h>
-
-#include <Adafruit_GFX.h>
-
 
 class Board
 
@@ -488,7 +484,7 @@ void loop()
 
 
 
-Board() {
+Board::Board() {
     
     
     
@@ -518,7 +514,7 @@ Board() {
 
 
 
-int getPaddlePos() {
+int Board::getPaddlePos() {
     
     return paddlePos;
     
@@ -526,7 +522,7 @@ int getPaddlePos() {
 
 
 
-void setPaddlePos(int input) {
+void Board::setPaddlePos(int input) {
     
     paddlePos = input;
     
@@ -534,7 +530,7 @@ void setPaddlePos(int input) {
 
 
 
-int getLives() {
+int Board::getLives() {
     
     return lives;
     
@@ -542,7 +538,7 @@ int getLives() {
 
 
 
-void setLives(int input) {
+void Board::setLives(int input) {
     
     lives = input;
     
@@ -550,7 +546,7 @@ void setLives(int input) {
 
 
 
-int getLevel() {
+int Board::getLevel() {
     
     return level;
     
@@ -558,7 +554,7 @@ int getLevel() {
 
 
 
-void setLevel(int input) {
+void Board::setLevel(int input) {
     
     level = input;
     
@@ -566,7 +562,7 @@ void setLevel(int input) {
 
 
 
-int getBallRow() {
+int Board::getBallRow() {
     
     return ballRow;
     
@@ -574,7 +570,7 @@ int getBallRow() {
 
 
 
-void setBallRow(int input) {
+void Board::setBallRow(int input) {
     
     ballRow = input;
     
@@ -582,7 +578,7 @@ void setBallRow(int input) {
 
 
 
-int getBallCol() {
+int Board::getBallCol() {
     
     return ballCol;
     
@@ -590,7 +586,7 @@ int getBallCol() {
 
 
 
-void setBallCol(int input) {
+void Board::setBallCol(int input) {
     
     ballCol = input;
     
@@ -598,7 +594,7 @@ void setBallCol(int input) {
 
 
 
-boolean getBallLeft() {
+boolean Board::getBallLeft() {
     
     return ballLeft;
     
@@ -606,7 +602,7 @@ boolean getBallLeft() {
 
 
 
-void setBallLeft(boolean input) {
+void Board::setBallLeft(boolean input) {
     
     ballLeft = input;
     
@@ -614,7 +610,7 @@ void setBallLeft(boolean input) {
 
 
 
-boolean getBallRight() {
+boolean Board::getBallRight() {
     
     return ballRight;
     
@@ -622,7 +618,7 @@ boolean getBallRight() {
 
 
 
-void setBallRight(boolean input) {
+void Board::setBallRight(boolean input) {
     
     ballRight = input;
     
@@ -630,7 +626,7 @@ void setBallRight(boolean input) {
 
 
 
-boolean getBallDown() {
+boolean Board::getBallDown() {
     
     return ballDown;
     
@@ -638,7 +634,7 @@ boolean getBallDown() {
 
 
 
-void setBallDown(boolean input) {
+void Board::setBallDown(boolean input) {
     
     ballDown = input;
     
@@ -646,7 +642,7 @@ void setBallDown(boolean input) {
 
 
 
-int getPaddleHeight() {
+int Board::getPaddleHeight() {
     
     return paddleHeight;
     
@@ -654,29 +650,29 @@ int getPaddleHeight() {
 
 
 
-void resetPause() {
+void Board::resetPause() {
     
-    pause = false;
-    
-}
-
-
-
-void setPause() {
-    
-    pause = true;
+    paused = false;
     
 }
 
 
 
-boolean getPaused() {
+void Board::setPause() {
+    
+    paused = true;
+    
+}
+
+
+
+boolean Board::getPaused() {
     
     return paused;
     
 }
 
-void initBoard() {
+void Board::initBoard() {
     
     paddleHeight = 9;
     paddlePos = 3;
@@ -704,7 +700,7 @@ void initBoard() {
     
     if (level == 3) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 15; j > 12; j--) {
+            for (int j = 15; j > 13; j--) {
                 if (j == 15) {
                     strength[i][j] = 2;
                 }
@@ -733,7 +729,7 @@ void initBoard() {
     
     if (level == 5) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 16; j > 5; j--) {
+            for (int j = 15; j > 5; j--) {
                 if (j == 15) {
                     strength[i][j] = 3;
                 }
@@ -749,32 +745,31 @@ void initBoard() {
             }
         }
     }
-    
     if (level >= 6) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 15; j > 10; j--) {
-                if (j == 15 || j == 14 || j == 13 || j == 7 || j == 6) {
-                    strength[i][j] = rand() % 3 + 1;
-                }
-            }
+      for (int i = 0; i < 8; i++) {
+        for (int j = 15; j < 10; j--) {
+          if (j == 15 || j == 14 || j == 13 || j == 7 || j == 6) {
+            strength[i][j] = rand() % 3 + 1;
+          }
         }
+      }
     }
 }
 
 
-void displayBlocks() {
-    for (int i = 0, i < 8, i++) {
-        for (int j = 0, i < 16, I++) {
+void Board::displayBlocks() {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 16; j++) {
             
             if (strength[i][j] > 0) {
-                drawPixel (j, i);
+                drawPixel(j, i); // error: 'drawPixel' was not declared in this scope
             }
         }
     }
 }
 
 
-void updateBall() {
+void Board::updateBall() {
     if (ballRight == true) {
         ballCol += 1;
     }
@@ -789,7 +784,7 @@ void updateBall() {
     }
 }
 
-boolean lostBall() {
+boolean Board::lostBall() {
     if (ballRow == 0) {
         return true;
     }
@@ -798,9 +793,9 @@ boolean lostBall() {
     }
 }
 
-void hitWall() {
+void Board::hitWall() {
     
-    if ((ballCol == 0 || ball Col == 7) && ballRow == 15) {  //Redirects ball when upper corners are hit
+    if ((ballCol == 0 || ballCol == 7) && ballRow == 15) {  //Redirects ball when upper corners are hit
         if (ballCol == 0 && ballLeft == true && ballDown == false) { //Hitting left corner coming from left
             ballLeft = false;
             ballRight = true;
@@ -842,7 +837,7 @@ void hitWall() {
     }
 }
 
-void hitPaddle( ) {
+void Board::hitPaddle( ) {
     if (ballRow == 1 || ballRow == 10) {
         if (ballCol >= (paddlePos - 1) && ballDown == true) { // Redirects the ball when it hits the upper/lower paddle
             if ((ballLeft == true) && (ballRight == false)) { //Ball hits paddle from a left-diagonal
@@ -901,7 +896,7 @@ void hitPaddle( ) {
 }
 
 
-void hitBlock() {
+void Board::hitBlock() {
     // Note: I decided to code this to be level-dependent (possibly not the best way)
     //       If you have any other ideas let me know! Redirection code is same/copied between levels
     
@@ -1087,7 +1082,7 @@ void hitBlock() {
 
 
 
-boolean levelComplete() {
+boolean Board::levelComplete() {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 15; j++) {
             if (strength [i,j] > 0) {
@@ -1098,7 +1093,7 @@ boolean levelComplete() {
     return true;
 }
 
-void initStrength() {
+void Board::initStrength() {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 15; j++) {
             strength [i,j] = 0;
@@ -1119,7 +1114,7 @@ void initStrength() {
 //EFFECTS:turns off all the pixels on the board
 
 void clearBoard() {
-    fillscreen(0);
+    fillscreen(0); // doesn't work
 }
 
 //REQUIRES:  val is the value of the potentiometer
@@ -1129,8 +1124,12 @@ void clearBoard() {
 //EFFECTS: returns the column position of the left pixel of the paddle
 
 int calculatePaddlePosition(int val) {
-  
-    return 0;
+    int paddleCol;
+    paddleCol = getPaddlePosition();
+    if paddleCol () {
+    val
+    }
+    return paddleCol;
 }
 
 //EFFECTS:displays the number of lives remaining/level number on the board. If it doesn't all fit
@@ -1140,18 +1139,18 @@ int calculatePaddlePosition(int val) {
 //use text size 1 and delay of 50
 
 void printMessage(int number) {
-    setRotation(0); // Experiment with 2 if 0 doesn't work
-    if (number >= 10) { // Scrolls if # is greater than 10
-      setTextWrap(false);
+    setRotation(0); // could be 2, might have to get rid of or if we keep it, deset it 
+    if (number >= 10) { // if number is greater than 10 it has to scroll
+      setTextWrap(false); // makes it scoll marquee style
       static_cast<char>(number);
       drawChar(3, 6, number, 1, 0, 1);
       delay(50);
     }
-    else { // Displays #'s 10 or less normally
+    else { // if number between 0-9
     static_cast<char>(number);
     drawChar(3, 6, number, 1, 0, 1);
     delay(50);
-    } 
+  }
 }
 
 //EFFECTS:displays string text needed(suchs as "LIVES" or "LEVEL") on the board. If it
@@ -1161,12 +1160,10 @@ void printMessage(int number) {
 //use text size 1 and delay of 50
 
 void printMessage(String message) {
-  setRotation(0); // Experiment with 2 if 0 doesn't work
-  setCursor(0, 6);
-  setTextColor(1);
-  setTextSize(1);
-  setTextWrap(false);
-  
-    
+    setRotation(0); // could be 2
+    setCursor(0, 6);
+    setTextColor(1);
+    setTextSize(1);
+    setTextWrap(false);
+    delay(50);
 }
-
