@@ -1,3 +1,5 @@
+
+
 //MircroArcade EECS 183 2014 Showcase
 
 //Breaker Breaker
@@ -6,12 +8,14 @@
 
 #include <Wire.h>
 
-#include "Adafruit_LEDBackpack.h"
-
 #include "Adafruit_GFX.h"
+#include "Adafruit_LEDBackpack.h"
 
 #include "stdlib.h"
 
+//#include <Adafruit_LEDBackpack.h>
+//
+//#include <Adafruit_GFX.h>
 
 
 class Board
@@ -762,7 +766,7 @@ void Board::displayBlocks() {
         for (int j = 0; j < 16; j++) {
             
             if (strength[i][j] > 0) {
-                drawPixel(j, i); // error: 'drawPixel' was not declared in this scope
+                matrix.drawPixel(j, i, 1); // error: 'drawPixel' was not declared in this scope
             }
         }
     }
@@ -1114,7 +1118,7 @@ void Board::initStrength() {
 //EFFECTS:turns off all the pixels on the board
 
 void clearBoard() {
-    fillscreen(0); // doesn't work
+    matrix.fillScreen(0); // doesn't work
 }
 
 //REQUIRES:  val is the value of the potentiometer
@@ -1124,8 +1128,6 @@ void clearBoard() {
 //EFFECTS: returns the column position of the left pixel of the paddle
 
 int paddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
-    int paddleCol;
-    paddleCol = getPaddlePosition();
     int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0
     delay(1);
     if (sensorValue >= 0 || sensorValue <= 150) {
@@ -1151,7 +1153,6 @@ int paddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
     }
     
     }
-}
 
 //EFFECTS:displays the number of lives remaining/level number on the board. If it doesn't all fit
 
@@ -1160,16 +1161,16 @@ int paddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
 //use text size 1 and delay of 50
 
 void printMessage(int number) {
-    setRotation(0); // could be 2, might have to get rid of or if we keep it, deset it 
+    matrix.setRotation(0); // could be 2, might have to get rid of or if we keep it, deset it 
     if (number >= 10) { // if number is greater than 10 it has to scroll
-      setTextWrap(false); // makes it scoll marquee style
+      matrix.setTextWrap(false); // makes it scoll marquee style
       static_cast<char>(number);
-      drawChar(3, 6, number, 1, 0, 1);
+      matrix.drawChar(3, 6, number, 1, 0, 1);
       delay(50);
     }
     else { // if number between 0-9
     static_cast<char>(number);
-    drawChar(3, 6, number, 1, 0, 1);
+    matrix.drawChar(3, 6, number, 1, 0, 1);
     delay(50);
   }
 }
@@ -1181,10 +1182,10 @@ void printMessage(int number) {
 //use text size 1 and delay of 50
 
 void printMessage(String message) {
-    setRotation(0); // could be 2
-    setCursor(0, 6);
-    setTextColor(1);
-    setTextSize(1);
-    setTextWrap(false);
+    matrix.setRotation(0); // could be 2
+    matrix.setCursor(0, 6);
+    matrix.setTextColor(1);
+    matrix.setTextSize(1);
+    matrix.setTextWrap(false);
     delay(50);
 }
