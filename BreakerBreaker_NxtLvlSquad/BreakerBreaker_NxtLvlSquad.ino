@@ -903,11 +903,19 @@ void Board::hitPaddle( ) {
 void Board::hitBlock() {
     // Note: I decided to code this to be level-dependent (possibly not the best way)
     //       If you have any other ideas let me know! Redirection code is same/copied between levels
-    
     if (level == 1) {
         if (ballRow == 14) {
-            if (strength[ballRow + 1][ballCol] > 0) {
-                strength[ballRow + 1][ballCol] -= 1;
+          if ( (ballCol % 2) == 0){
+            if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+            }
+            else if ( (ballCol % 2) == 1){
+              if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+              }
+            }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
                     ballDown = true;
                 }
@@ -928,17 +936,28 @@ void Board::hitBlock() {
     }
     else if (level == 2) {
         if (ballRow == 13 || ballRow == 14) {
-            if (strength[ballRow + 1][ballCol] > 0) {
-                strength[ballRow + 1][ballCol] -= 1;
+          if ( (ballCol % 2) == 0){
+            if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+            }
+            else if ( (ballCol % 2) == 1){
+              if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+              }
+            }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
                     ballDown = true;
                 }
+           
                 else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
                     if (ballRight == true) { //Ball is coming right-diagonally
                         ballRight == true;
                         ballLeft == false;
                         ballDown == true;
                     }
+                }
                     if (ballLeft == true) { //Ball is coming left-diagonally
                         ballLeft == true;
                         ballRight == false;
@@ -947,12 +966,19 @@ void Board::hitBlock() {
                 }
             }
         }
-        
-    }
     else if (level == 3) {
         if (ballRow == 13 || ballRow == 14) {
-            if (strength[ballRow + 1][ballCol] > 0) {
-                strength[ballRow + 1][ballCol] -= 1;
+          if ( (ballCol % 2) == 0){
+            if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+            }
+            else if ( (ballCol % 2) == 1){
+              if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+              }
+            }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
                     ballDown = true;
                 }
@@ -970,12 +996,20 @@ void Board::hitBlock() {
                 }
             }
         }
-        
     }
     else if (level == 4) {
         if (ballRow == 12 || ballRow == 13 || ballRow == 14) {
-            if (strength[ballRow + 1][ballCol] > 0) {
-                strength[ballRow + 1][ballCol] -= 1;
+            if ( (ballCol % 2) == 0){ // creates a two block segment consisting of rows (0&1) (2&3) (4&5) (6&7). makes sure column is even
+            if (strength[(ballRow + 1)][ballCol] > 0) { // checks the strength of the block in the column where "contact is made"
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1; //decrements the strength of the even column pixel of the block hit
+                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1; .// decrements the strength of the odd column pixel of the block hit by moving up 1 column.
+            }
+            else if ( (ballCol % 2) == 1){// creates a two block segment consisting of rows (0&1) (2&3) (4&5) (6&7). makes sure column is odd
+              if (strength[(ballRow + 1)][ballCol] > 0) {// checks the strength of the block in the column where "contact is made"
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1; // decrements the strength of the odd column pixel of block hit.
+                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1; // decrements the strength of the even column pixel of block hit by moving column down 1.
+              }
+            }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
                     ballDown = true;
                 }
@@ -996,8 +1030,17 @@ void Board::hitBlock() {
     }
     else if (level == 5) { //Two-tiered block formation is introduced
         if (ballRow == 14 || ballRow == 12 || ballRow == 4 || ballRow == 5) { //When the ball is hitting from the bottom
-            if (strength[ballRow + 1][ballCol] > 0) {
-                strength[ballRow + 1][ballCol] -= 1;
+            if ( (ballCol % 2) == 0){
+            if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+            }
+            else if ( (ballCol % 2) == 1){
+              if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+              }
+            }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
                     ballDown = true;
                 }
@@ -1016,8 +1059,17 @@ void Board::hitBlock() {
             }
         }
         else if (ballRow == 6 || ballRow == 7)  { //When ball is hitting from the top -- only possible for lower-tier blocks
-            if (strength[(ballRow - 1)][ballCol] > 0) {
-                strength[(ballRow - 1)][ballCol] -= 1;
+            if ( (ballCol % 2) == 0){ 
+            if (strength[(ballRow - 1)][ballCol] > 0) { 
+                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow - 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+            }
+            else if ( (ballCol % 2) == 1){
+              if (strength[(ballRow - 1)][ballCol] > 0) {
+                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow - 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+              }
+            }
                 if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
                     ballDown = false;
                 }
@@ -1040,8 +1092,17 @@ void Board::hitBlock() {
     
     else { //Level is 6 or higher -- block strength is randomized at this stage
         if (ballRow == 14 || ballRow == 13 || ballRow == 12 || ballRow == 5 || ballRow == 4) { //Ball is hitting from the bottom
-            if (strength[ballRow + 1][ballCol] > 0) {
-                strength[ballRow + 1][ballCol] -= 1;
+            if ( (ballCol % 2) == 0){
+            if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+            }
+            else if ( (ballCol % 2) == 1){
+              if (strength[(ballRow + 1)][ballCol] > 0) {
+                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+              }
+            }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
                     ballDown = true;
                 }
@@ -1060,8 +1121,17 @@ void Board::hitBlock() {
             }
         }
         else if (ballRow == 6 || ballRow == 7) { //Ball is hitting from the top -- on the lower-tiered blocks
+            if ( (ballCol % 2) == 0){ 
             if (strength[(ballRow - 1)][ballCol] > 0) {
-                strength[(ballRow - 1)][ballCol] -= 1;
+                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow - 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+            }
+            else if ( (ballCol % 2) == 1){
+              if (strength[(ballRow - 1)][ballCol] > 0) {
+                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
+                strength[(ballRow - 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+              }
+            }
                 if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
                     ballDown = false;
                 }
