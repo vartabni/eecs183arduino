@@ -451,7 +451,7 @@ void gameOver(){
 void setup()
 
 {
-    
+    Serial.begin(9600); // for potentiometer paddlePos
     
     
 }
@@ -470,7 +470,7 @@ void loop()
     
     //YOUR CODE GOES HERE
     
-    
+
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
     
@@ -903,7 +903,7 @@ void Board::hitBlock() {
     if (level == 1) {
         if (ballRow == 14) {
             if (strength[ballRow + 1][ballCol] > 0) {
-                strength[ballRow + 1][,ballCol] -= 1;
+                strength[ballRow + 1][ballCol] -= 1;
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
                     ballDown = true;
                 }
@@ -1123,11 +1123,33 @@ void clearBoard() {
 
 //EFFECTS: returns the column position of the left pixel of the paddle
 
-int calculatePaddlePosition(int val) {
+int paddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
     int paddleCol;
     paddleCol = getPaddlePosition();
-    if paddleCol () {
-    val
+    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0
+    delay(1);
+    if (sensorValue >= 0 || sensorValue <= 150) {
+      setPaddlePos(0);
+    }
+    if (sensorValue >= 151 || sensorValue <= 300) {
+      setPaddlePos(1);
+    }
+    if (sensorValue >= 301 || sensorValue <= 450) {
+      setPaddlePos(2);
+    }
+    if (sensorValue >= 451 || sensorValue <= 600) {
+      setPaddlePos(3);
+    }
+    if (sensorValue >= 601 || sensorValue <= 750) {
+      setPaddlePos(4);
+    }
+    if (sensorValue >= 751 || sensorValue <= 900) {
+      setPaddlePos(5);
+    }
+    if (sensorValue >= 901 || sensorValue <= 1023 ) {
+      setPaddlePos(6);
+    }
+    
     }
     return paddleCol;
 }
