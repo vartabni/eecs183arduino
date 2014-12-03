@@ -1129,29 +1129,28 @@ int paddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
     int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0
     delay(1);
     if (sensorValue >= 0 || sensorValue <= 150) {
-      setPaddlePos(0);
+      return 0;
     }
     if (sensorValue >= 151 || sensorValue <= 300) {
-      setPaddlePos(1);
+      return 1;
     }
     if (sensorValue >= 301 || sensorValue <= 450) {
-      setPaddlePos(2);
+      return 2;
     }
     if (sensorValue >= 451 || sensorValue <= 600) {
-      setPaddlePos(3);
+      return 3;
     }
     if (sensorValue >= 601 || sensorValue <= 750) {
-      setPaddlePos(4);
+      return 4;
     }
     if (sensorValue >= 751 || sensorValue <= 900) {
-      setPaddlePos(5);
+      return 5;
     }
     if (sensorValue >= 901 || sensorValue <= 1023 ) {
-      setPaddlePos(6);
+      return 6;
     }
     
     }
-    return paddleCol;
 }
 
 //EFFECTS:displays the number of lives remaining/level number on the board. If it doesn't all fit
