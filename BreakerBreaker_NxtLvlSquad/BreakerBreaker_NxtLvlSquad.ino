@@ -412,13 +412,13 @@ struct Pins
 
 {
     
-    int potPin; 	        //input pin potentiometer
+    int potPin; 	//input pin potentiometer
     
     int val;		//value of the potentiometer
     
     int button;		//input pin for the button
     
-    int buttonState;      // current state of the button
+    int buttonState;    // current state of the button
     
     
     
@@ -464,6 +464,7 @@ void setup()
     matrix.begin(0x70);
     clearBoard();
     board.initBoard();
+    board.initStrength();
     printMessage(board.getLives());
   }
 
@@ -474,18 +475,31 @@ void setup()
 void loop()
 
 {
-    clearBoard();
-    //everything needed for the game to play goes here
-    //YOUR CODE GOES HERE
-//    if (board.getLevel() == 1) {
-    board.setLevel(1);
-    board.initBoard();
-    board.displayBlocks();
-    matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON);
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON);
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON);
-//    }
     
+    //everything needed for the game to play goes here 
+    // hitpaddle, hitblocks, hitwall
+    //YOUR CODE GOES HERE
+    matrix.clear();
+//    clearBoard();
+    board.displayBlocks();
+    matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // left block of bottom paddle
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON); // right block of bottom paddle
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON); // left block of the top paddle in row 9
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON); // right block of top paddle in row 9
+    
+//    board.hitPaddle();
+//    board.hitWall();
+//    board.hitBlock();
+    pins.val = analogRead(A0);
+    board.setPaddlePos(calculatePaddlePosition(pins.val));
+//    board.updateBall();
+//    board.hitPaddle();
+//    board.hitWall();
+//    board.hitBlock();
+//    board.updateBall();
+//    board.lostBall();
+//    board.levelComplete();
     
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
@@ -1170,7 +1184,7 @@ void Board::hitBlock() {
 boolean Board::levelComplete() {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 15; j++) {
-            if (strength [i,j] > 0) {
+            if (strength [i][j] > 0) { 
                 return false;
             }
         }
@@ -1213,8 +1227,8 @@ void clearBoard() {
 
 //EFFECTS: returns the column position of the left pixel of the paddle
 
-int paddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
-    int sensorValue = analogRead(0); // Use pin for the potentiometer pin, not A0, potPin?
+int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
+    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0, potPin?
     delay(1);
     if (sensorValue >= 0 || sensorValue <= 150) {
       return 0;
