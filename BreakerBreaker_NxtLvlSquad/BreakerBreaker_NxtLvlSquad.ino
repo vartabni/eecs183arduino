@@ -458,7 +458,8 @@ void setup()
 {
     Serial.begin(9600); // for potentiometer paddlePos
     pins.potPin = 0;
-    pins.val = 0;
+   // pins.val = 0;
+    pins.val = analogRead(A0);
     pins.button = 0;
     pinMode(pins.button, INPUT);
     matrix.begin(0x70);
@@ -480,56 +481,27 @@ void loop()
     // hitpaddle, hitblocks, hitwall
     //YOUR CODE GOES HERE
     matrix.clear();
-//    clearBoard();
-//    board.displayBlocks(); uncomment
-    
-//    board.hitPaddle();
-//    board.hitWall();
-//    board.hitBlock();
-//    pins.val = analogRead(pins.potPin); dont use
-//    pins.val = analogRead(A0); dont use
-//    board.setPaddlePos(calculatePaddlePosition(pins.val)); dont use
-    pins.val = calculatePaddlePosition(analogRead(pins.val));
-    board.setPaddlePos(pins.val);
-    
-    int newVal = pins.val;
+    board.displayBlocks();
     matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // left block of bottom paddle
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON); // right block of bottom paddle
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON); // left block of the top paddle in row 9
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON); // right block of top paddle in row 9
     
-    if (pins.val > newVal) { // moves paddle to the right
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_OFF); // turns current paddles off so they can move
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_OFF);
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_OFF);
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_OFF);
-    int input = board.getPaddlePos();
-    board.setPaddlePos(++input); // increments paddlePos so it can move over
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // turns on/moves the paddle to the right
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON);
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON);
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON);
-    }
-    else if (pins.val < newVal) { //moving to the left
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_OFF); // turns current paddles off so they can move
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_OFF);
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_OFF);
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_OFF);
-    int input1 = board.getPaddlePos();
-    board.setPaddlePos(--input1); // decrements paddlePos so it can move over
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // turns on/moves the paddle to the right
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON);
-    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON);
-    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON);
-    }
-    else if (pins.val == newVal) {
-    }
-    
-//    board.updateBall();
-//    board.hitPaddle();
-//    board.hitWall();
-//    board.hitBlock();
+    board.hitPaddle();
+    board.hitWall();
+    board.hitBlock(); 
+    board.updateBall();
+    board.hitPaddle();
+    board.hitWall();
+    board.hitBlock();
+
+    matrix.drawPixel(board.getPaddlePos(), 15, LED_ON); // left block of bottom paddle
+    matrix.drawPixel(board.getPaddlePos() + 1, 15, LED_ON); // right block of bottom paddle
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // left block of the top paddle in row 9
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON); // right block of top paddle in row 9
+    board.setPaddlePos(calculatePaddlePosition(pins.val));
+    pins.val = analogRead(pins.potPin);
+
+//    pins.val = calculatePaddlePosition(analogRead(pins.potPin));
+//    board.setPaddlePos(pins.val);
+
 //    board.updateBall();
 //    board.lostBall();
 //    board.levelComplete();
@@ -552,7 +524,7 @@ Board::Board() {
     
    
     
-    paddlePos = 0;
+    paddlePos = 3;
     
     paddleHeight = 7;
     
@@ -736,7 +708,7 @@ boolean Board::getPaused() {
 
 void Board::initBoard() {
     
-    paddleHeight = 15;
+    paddleHeight = 7;
     paddlePos = 3;
     setPaddlePos(paddlePos);
     ballRow = paddlePos;
@@ -857,7 +829,7 @@ boolean Board::lostBall() {
 
 void Board::hitWall() {
     
-    if ((ballCol == 0 || ballCol == 7) && ballRow == 15) {  //Redirects ball when upper corners are hit
+    if ((ballCol == 0 || ballCol == 7) && ballRow == 0) {  //Redirects ball when upper corners are hit
         if (ballCol == 0 && ballLeft == true && ballDown == false) { //Hitting left corner coming from left
             ballLeft = false;
             ballRight = true;
@@ -879,8 +851,7 @@ void Board::hitWall() {
             ballRight = true;
         }
     }
-    
-    else if (ballRow == 15) { //Redirects ball if top wall is hit
+    else if (ballRow == 0) { //Redirects ball if top wall is hit
         if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
             ballDown = true;
         }
@@ -1261,27 +1232,27 @@ void clearBoard() {
 //EFFECTS: returns the column position of the left pixel of the paddle
 
 int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
-    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0, potPin?
-    delay(1);
-    if (sensorValue >= 0 || sensorValue <= 150) {
+//    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0, potPin?
+//    delay(1);
+    if (val >= 0 && val <= 150) {
       return 0;
     }
-    if (sensorValue >= 151 || sensorValue <= 300) {
+    if (val >= 151 && val <= 300) {
       return 1;
     }
-    if (sensorValue >= 301 || sensorValue <= 450) {
+    if (val >= 301 && val <= 450) {
       return 2;
     }
-    if (sensorValue >= 451 || sensorValue <= 600) {
+    if (val >= 451 && val <= 600) {
       return 3;
     }
-    if (sensorValue >= 601 || sensorValue <= 750) {
+    if (val >= 601 && val <= 750) {
       return 4;
     }
-    if (sensorValue >= 751 || sensorValue <= 900) {
+    if (val >= 751 && val <= 900) {
       return 5;
     }
-    if (sensorValue >= 901 || sensorValue <= 1023 ) {
+    if (val >= 901 && val <= 1024 ) {
       return 6;
     }
     
