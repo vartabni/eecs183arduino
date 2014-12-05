@@ -412,13 +412,13 @@ struct Pins
 
 {
     
-    int potPin; 	        //input pin potentiometer
+    int potPin; 	//input pin potentiometer
     
     int val;		//value of the potentiometer
     
     int button;		//input pin for the button
     
-    int buttonState;      // current state of the button
+    int buttonState;    // current state of the button
     
     
     
@@ -451,14 +451,23 @@ void gameOver(){
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
+Pins pins;
+Board board;
 void setup()
 
 {
     Serial.begin(9600); // for potentiometer paddlePos
-    
-    
-}
+    pins.potPin = 0;
+   // pins.val = 0;
+    pins.val = analogRead(A0);
+    pins.button = 0;
+    pinMode(pins.button, INPUT);
+    matrix.begin(0x70);
+    clearBoard();
+    board.initStrength();
+    board.initBoard();
+    printMessage(board.getLives());
+  }
 
 
 
@@ -468,13 +477,36 @@ void loop()
 
 {
     
-    //everything needed for the game to play goes here
-    
-    
-    
+    //everything needed for the game to play goes here 
+    // hitpaddle, hitblocks, hitwall
     //YOUR CODE GOES HERE
+    matrix.clear();
+    board.displayBlocks();
+    matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
     
+    Serial.println(board.getBallRow());
+    Serial.println(board.getBallCol());
+    board.hitPaddle();
+    board.hitWall();
+    board.hitBlock(); 
+    board.updateBall();
 
+   
+
+    matrix.drawPixel(board.getPaddlePos(), 15, LED_ON); // left block of bottom paddle
+    matrix.drawPixel(board.getPaddlePos() + 1, 15, LED_ON); // right block of bottom paddle
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // left block of the top paddle in row 9
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON); // right block of top paddle in row 9
+    board.setPaddlePos(calculatePaddlePosition(pins.val));
+    pins.val = analogRead(pins.potPin);
+
+//    pins.val = calculatePaddlePosition(analogRead(pins.potPin));
+//    board.setPaddlePos(pins.val);
+
+//    board.updateBall();
+//    board.lostBall();
+//    board.levelComplete();
+    
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
     
@@ -487,32 +519,31 @@ void loop()
 //WRITE YOUR FUNCTION IMPLEMENTATIONS BELOW
 
 
-
 Board::Board() {
     
     
     
-    int strength[8][16] = { 0 };
+   
     
-    int paddlePos = 0;
+    paddlePos = 3;
     
-    int paddleHeight = 7;
+    paddleHeight = 7;
     
-    int lives = 3;
+    lives = 3;
     
-    int level = 1;
+    level = 1;
     
-    int ballRow = 0;
+    ballRow = 3;
     
-    int ballCol = 0;
+    ballCol = 14;
     
-    boolean ballLeft = true;
+    ballLeft = true;
     
-    boolean ballRight = false;
+    ballRight = false;
     
-    boolean ballDown = false;
+    ballDown = false;
     
-    boolean paused = true;
+    paused = true;
     
 }
 
@@ -678,17 +709,18 @@ boolean Board::getPaused() {
 
 void Board::initBoard() {
     
-    paddleHeight = 9;
+    paddleHeight = 7;
     paddlePos = 3;
     setPaddlePos(paddlePos);
     ballRow = paddlePos;
-    ballCol = 15;
+    ballCol = 13;
     ballRight = false;
+    ballLeft = true;
     ballDown = false;
     
     if (level == 1) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 15; j > 14; j--) {
+            for (int j = 0; j < 1; j++) {
                 strength[i][j] = 1;
             }
         }
@@ -696,7 +728,7 @@ void Board::initBoard() {
     
     if (level == 2) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 15; j > 13; j--) {
+            for (int j = 0; j < 2; j++) {
                 strength[i][j] = 1;
             }
         }
@@ -704,11 +736,11 @@ void Board::initBoard() {
     
     if (level == 3) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 15; j > 13; j--) {
-                if (j == 15) {
+            for (int j = 0; j < 2; j++) {
+                if (j == 0) {
                     strength[i][j] = 2;
                 }
-                if (j == 14) {
+                if (j == 1) {
                     strength[i][j] = 1;
                 }
             }
@@ -717,14 +749,14 @@ void Board::initBoard() {
     
     if (level == 4) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 15; j > 12; j--) {
-                if (j == 15) {
+            for (int j = 0; j < 3; j++) {
+                if (j == 0) {
                     strength[i][j] = 3;
                 }
-                if (j == 14) {
+                if (j == 1) {
                     strength[i][j] = 2;
                 }
-                if (j == 13) {
+                if (j == 2) {
                     strength[i][j] = 1;
                 }
             }
@@ -733,17 +765,17 @@ void Board::initBoard() {
     
     if (level == 5) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 15; j > 5; j--) {
-                if (j == 15) {
+            for (int j = 0; j < 10; j++) {
+                if (j == 0) {
                     strength[i][j] = 3;
                 }
-                if (j == 14) {
+                if (j == 1) {
                     strength[i][j] = 0;
                 }
-                if (j == 13) {
+                if (j == 2) {
                     strength[i][j] = 2;
                 }
-                if ((j == 6) || (i == 7)) {
+                if ((j == 9) || (j == 10)) {
                     strength[i][j] = 1;
                 }
             }
@@ -751,8 +783,8 @@ void Board::initBoard() {
     }
     if (level >= 6) {
       for (int i = 0; i < 8; i++) {
-        for (int j = 15; j < 10; j--) {
-          if (j == 15 || j == 14 || j == 13 || j == 7 || j == 6) {
+        for (int j = 0; j < 10; j++) {
+          if (j == 0 || j == 1 || j == 2 || j == 9 || j == 10) {
             strength[i][j] = rand() % 3 + 1;
           }
         }
@@ -766,7 +798,7 @@ void Board::displayBlocks() {
         for (int j = 0; j < 16; j++) {
             
             if (strength[i][j] > 0) {
-                matrix.drawPixel(j, i, 1); // error: 'drawPixel' was not declared in this scope
+                matrix.drawPixel(i, j, LED_ON);
             }
         }
     }
@@ -775,21 +807,21 @@ void Board::displayBlocks() {
 
 void Board::updateBall() {
     if (ballRight == true) {
-        ballCol += 1;
+        ballRow += 1;
     }
     if (ballLeft == true) {
-        ballCol -= 1;
-    }
-    if (ballDown == true) {
         ballRow -= 1;
     }
+    if (ballDown == true) {
+        ballCol += 1;
+    }
     if (ballDown == false) {
-        ballRow += 1;
+        ballCol -= 1;
     }
 }
 
 boolean Board::lostBall() {
-    if (ballRow == 0) {
+    if (ballRow == 15) {
         return true;
     }
     else {
@@ -799,30 +831,30 @@ boolean Board::lostBall() {
 
 void Board::hitWall() {
     
-    if ((ballCol == 0 || ballCol == 7) && ballRow == 15) {  //Redirects ball when upper corners are hit
-        if (ballCol == 0 && ballLeft == true && ballDown == false) { //Hitting left corner coming from left
+    if ((ballRow == 0 || ballRow == 7) && ballCol == 0) {  //Redirects ball when upper corners are hit
+        if (ballRow == 0 && ballLeft == true && ballDown == false) { //Hitting left corner coming from left
             ballLeft = false;
             ballRight = true;
             ballDown = true;
         }
-        else if (ballCol == 7 && ballRight == true && ballDown == false) { //Hitting right corner coming from right
+        else if (ballRow == 7 && ballRight == true && ballDown == false) { //Hitting right corner coming from right
             ballRight = false;
             ballLeft = true;
             ballDown = true;
         }
     }
-    else if ((ballCol == 0) || (ballCol == 7)) { //Redirects ball if left/right walls are hit
+    else if ((ballRow == 0) || (ballRow == 7)) { //Redirects ball if left/right walls are hit
         if (ballRight == true) { //Ball is going right (hitting right wall)
             ballRight = false;
             ballLeft = true;
         }
         else { //Ball is going left (hitting left wall)
+            Serial.println("Reached!");
             ballLeft = false;
             ballRight = true;
         }
     }
-    
-    else if (ballRow == 15) { //Redirects ball if top wall is hit
+    else if (ballCol == 0) { //Redirects ball if top wall is hit
         if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
             ballDown = true;
         }
@@ -841,8 +873,8 @@ void Board::hitWall() {
     }
 }
 
-void Board::hitPaddle( ) {
-    if (ballRow == 1 || ballRow == 10) {
+void Board::hitPaddle() { // CODE WHEN BALL HITS THE *BOTTOM* OF THE *TOP PADDLE*!!!
+    if (ballRow == 14 || ballRow == 6) {
         if (ballCol >= (paddlePos - 1) && ballDown == true) { // Redirects the ball when it hits the upper/lower paddle
             if ((ballLeft == true) && (ballRight == false)) { //Ball hits paddle from a left-diagonal
                 if (ballCol == (paddlePos + 1)) { //Ball hits right side of paddle
@@ -903,17 +935,17 @@ void Board::hitPaddle( ) {
 void Board::hitBlock() {
     // Note: I decided to code this to be level-dependent (possibly not the best way)
     //       If you have any other ideas let me know! Redirection code is same/copied between levels
-    if (level == 1) {
-        if (ballRow == 14) {
-          if ( (ballCol % 2) == 0){
-            if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+    if (level == 1) { // NOTE: BALLCOL / BALLROW SWITCHED FOR THIS LEVEL ONLY!!! (HINT: SWITCH FOR OTHER LEVELS, PLEASE.)
+        if (ballCol == 1) {
+          if ( (ballRow % 2) == 0){
+            if (strength[(ballCol + 1)][ballRow] > 0) {
+                strength[(ballCol + 1)][ballRow] = strength[(ballCol + 1)][ballRow] - 1;
+                strength[(ballCol + 1)][(ballRow + 1)] = strength[(ballCol + 1)][(ballRow + 1)] - 1;
             }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+            else if ( (ballRow % 2) == 1){
+              if (strength[(ballCol + 1)][ballRow] > 0) {
+                strength[(ballCol + 1)][ballRow] = strength[(ballCol + 1)][ballRow] - 1;
+                strength[(ballCol + 1)][(ballRow - 1)] = strength[(ballCol + 1)][(ballRow-1)] - 1;
               }
             }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
@@ -935,7 +967,7 @@ void Board::hitBlock() {
         }
     }
     else if (level == 2) {
-        if (ballRow == 13 || ballRow == 14) {
+        if (ballRow == 2 || ballRow == 1) {
           if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -967,7 +999,7 @@ void Board::hitBlock() {
             }
         }
     else if (level == 3) {
-        if (ballRow == 13 || ballRow == 14) {
+        if (ballRow == 2 || ballRow == 1) {
           if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -998,11 +1030,11 @@ void Board::hitBlock() {
         }
     }
     else if (level == 4) {
-        if (ballRow == 12 || ballRow == 13 || ballRow == 14) {
+        if (ballRow == 3 || ballRow == 2 || ballRow == 1) {
             if ( (ballCol % 2) == 0){ // creates a two block segment consisting of rows (0&1) (2&3) (4&5) (6&7). makes sure column is even
             if (strength[(ballRow + 1)][ballCol] > 0) { // checks the strength of the block in the column where "contact is made"
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1; //decrements the strength of the even column pixel of the block hit
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1; .// decrements the strength of the odd column pixel of the block hit by moving up 1 column.
+                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1; // decrements the strength of the odd column pixel of the block hit by moving up 1 column.
             }
             else if ( (ballCol % 2) == 1){// creates a two block segment consisting of rows (0&1) (2&3) (4&5) (6&7). makes sure column is odd
               if (strength[(ballRow + 1)][ballCol] > 0) {// checks the strength of the block in the column where "contact is made"
@@ -1029,7 +1061,7 @@ void Board::hitBlock() {
         }
     }
     else if (level == 5) { //Two-tiered block formation is introduced
-        if (ballRow == 14 || ballRow == 12 || ballRow == 4 || ballRow == 5) { //When the ball is hitting from the bottom
+        if (ballRow == 1 || ballRow == 3 || ballRow == 9 || ballRow == 8) { //When the ball is hitting from the bottom
             if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1058,7 +1090,7 @@ void Board::hitBlock() {
                 }
             }
         }
-        else if (ballRow == 6 || ballRow == 7)  { //When ball is hitting from the top -- only possible for lower-tier blocks
+        else if (ballRow == 9 || ballRow == 8)  { //When ball is hitting from the top -- only possible for lower-tier blocks
             if ( (ballCol % 2) == 0){ 
             if (strength[(ballRow - 1)][ballCol] > 0) { 
                 strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1091,7 +1123,7 @@ void Board::hitBlock() {
     
     
     else { //Level is 6 or higher -- block strength is randomized at this stage
-        if (ballRow == 14 || ballRow == 13 || ballRow == 12 || ballRow == 5 || ballRow == 4) { //Ball is hitting from the bottom
+        if (ballRow == 1 || ballRow == 2 || ballRow == 3 || ballRow == 8 || ballRow == 9) { //Ball is hitting from the bottom
             if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1120,7 +1152,7 @@ void Board::hitBlock() {
                 }
             }
         }
-        else if (ballRow == 6 || ballRow == 7) { //Ball is hitting from the top -- on the lower-tiered blocks
+        else if (ballRow == 8 || ballRow == 9) { //Ball is hitting from the top -- on the lower-tiered blocks
             if ( (ballCol % 2) == 0){ 
             if (strength[(ballRow - 1)][ballCol] > 0) {
                 strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1158,8 +1190,8 @@ void Board::hitBlock() {
 
 boolean Board::levelComplete() {
     for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 15; j++) {
-            if (strength [i,j] > 0) {
+        for (int j = 0; j < 16; j++) {
+            if (strength [i][j] > 0) { 
                 return false;
             }
         }
@@ -1169,7 +1201,7 @@ boolean Board::levelComplete() {
 
 void Board::initStrength() {
     for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 15; j++) {
+        for (int j = 0; j < 16; j++) {
             strength [i][j] = 0;
         }
     }
@@ -1188,8 +1220,13 @@ void Board::initStrength() {
 //EFFECTS:turns off all the pixels on the board
 
 void clearBoard() {
-    matrix.fillScreen(0); // doesn't work
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 16; j++){
+        matrix.drawPixel(i, j, LED_OFF);
+      }
+    }
 }
+      
 
 //REQUIRES:  val is the value of the potentiometer
 
@@ -1197,28 +1234,28 @@ void clearBoard() {
 
 //EFFECTS: returns the column position of the left pixel of the paddle
 
-int paddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
-    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0
-    delay(1);
-    if (sensorValue >= 0 || sensorValue <= 150) {
+int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
+//    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0, potPin?
+//    delay(1);
+    if (val >= 0 && val <= 150) {
       return 0;
     }
-    if (sensorValue >= 151 || sensorValue <= 300) {
+    if (val >= 151 && val <= 300) {
       return 1;
     }
-    if (sensorValue >= 301 || sensorValue <= 450) {
+    if (val >= 301 && val <= 450) {
       return 2;
     }
-    if (sensorValue >= 451 || sensorValue <= 600) {
+    if (val >= 451 && val <= 600) {
       return 3;
     }
-    if (sensorValue >= 601 || sensorValue <= 750) {
+    if (val >= 601 && val <= 750) {
       return 4;
     }
-    if (sensorValue >= 751 || sensorValue <= 900) {
+    if (val >= 751 && val <= 900) {
       return 5;
     }
-    if (sensorValue >= 901 || sensorValue <= 1023 ) {
+    if (val >= 901 && val <= 1024 ) {
       return 6;
     }
     
@@ -1259,3 +1296,4 @@ void printMessage(String message) {
     matrix.setTextWrap(false);
     delay(50);
 }
+
