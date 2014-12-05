@@ -498,7 +498,6 @@ void loop()
     board.lostBall();
     board.levelComplete();
     
-    
     matrix.drawPixel(board.getPaddlePos(), 15, LED_ON); // left block of bottom paddle
     matrix.drawPixel(board.getPaddlePos() + 1, 15, LED_ON); // right block of bottom paddle
     matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // left block of the top paddle in row 9
@@ -509,6 +508,13 @@ void loop()
     
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
+    
+    if (board.levelComplete() == true) {
+        board.setLevel(board.getLevel() + 1);
+        board.initStrength();
+        board.initBoard();
+        
+    }
     
     delay(300); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
     
