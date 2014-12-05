@@ -463,8 +463,8 @@ void setup()
     pinMode(pins.button, INPUT);
     matrix.begin(0x70);
     clearBoard();
-    board.initBoard();
     board.initStrength();
+    board.initBoard();
     printMessage(board.getLives());
   }
 
@@ -488,18 +488,18 @@ void loop()
     matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON); // left block of the top paddle in row 9
     matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON); // right block of top paddle in row 9
     
-//    board.hitPaddle();
-//    board.hitWall();
-//    board.hitBlock();
-    pins.val = analogRead(A0);
-    board.setPaddlePos(calculatePaddlePosition(pins.val));
-//    board.updateBall();
-//    board.hitPaddle();
-//    board.hitWall();
-//    board.hitBlock();
-//    board.updateBall();
-//    board.lostBall();
-//    board.levelComplete();
+    board.hitPaddle();
+    board.hitWall();
+    board.hitBlock();
+//    pins.val = analogRead(A0);
+//    board.setPaddlePos(calculatePaddlePosition(pins.val));
+    board.updateBall();
+    board.hitPaddle();
+    board.hitWall();
+    board.hitBlock();
+    board.updateBall();
+    board.lostBall();
+    board.levelComplete();
     
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
