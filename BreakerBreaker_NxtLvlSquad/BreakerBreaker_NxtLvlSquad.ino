@@ -416,7 +416,7 @@ struct Pins
     
     int val;		//value of the potentiometer
     
-    int button;		//input pin for the button
+    int button;		//input pin for the f
     
     int buttonState;    // current state of the button
     
@@ -458,10 +458,14 @@ void setup()
 {
     Serial.begin(9600); // for potentiometer paddlePos
     pins.potPin = 0;
-    // pins.val = 0;
+    
     pins.val = analogRead(A0);
+    
+    // Beginning work on button set-up
     pins.button = 0;
+    pins.buttonState = 0;
     pinMode(pins.button, INPUT);
+    
     matrix.begin(0x70);
     clearBoard();
     board.initStrength();
@@ -477,13 +481,16 @@ void loop()
 
 {
     
-    //everything needed for the game to play goes here
-    // hitpaddle, hitblocks, hitwall
-    //YOUR CODE GOES HERE
-    matrix.clear();
+    // Button set-up work cont.
+    pins.buttonState = digitalRead(pins.button);
+    //Serial.println(pins.buttonState); // Prints out the state of the button ( 1 = Pressed/HIGH, 0 = Not pressed/LOW)
+    delay (5);
+    
+    //matrix.clear();
+    clearBoard(); // another way to clear the board
     board.displayBlocks();
     matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
-   
+    
     board.hitPaddle();
     board.hitWall();
     board.hitBlock();
@@ -498,12 +505,12 @@ void loop()
     matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON); // right block of top paddle in row 9
     board.setPaddlePos(calculatePaddlePosition(pins.val));
     pins.val = analogRead(pins.potPin);
-
+    
     
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
     
-    delay(150); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
+    delay(300); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
     
 }
 
@@ -854,20 +861,20 @@ void Board::hitWall() {
         }
         else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
             if (ballLeft == true) { //Ball is coming left-diagonally
-                ballLeft = false;
-                ballRight = true;
+                ballLeft = true;
+                ballRight = false;
                 ballDown = true;
             }
             else if (ballRight == true) { //Ball is coming right-diagonally
-                ballRight = false;
-                ballLeft = true;
+                ballRight = true;
+                ballLeft = false;
                 ballDown = true;
             }
         }
     }
 }
 
-void Board::hitPaddle() { 
+void Board::hitPaddle() {
     if (ballCol == 14 || ballCol == 6) {
         if (ballRow >= (paddlePos - 1) && ballDown == true) { // Redirects the ball when it hits the upper/lower paddle
             if ((ballLeft == true) && (ballRight == false)) { //Ball hits paddle from a left-diagonal
@@ -985,39 +992,59 @@ void Board::hitPaddle() {
 
 
 void Board::hitBlock() {
-    if (level == 1) { 
+    if (level == 1) {
         if (ballCol == 1) {
             if ( (ballRow % 2) == 0) {
-                if (strength[(ballCol - 1)][ballRow] > 0) {
-                    strength[(ballCol - 1)][ballRow] = strength[(ballCol - 1)][ballRow] - 1;
-                    strength[(ballCol - 1)][(ballRow + 1)] = strength[(ballCol - 1)][(ballRow + 1)] - 1;
+                
+                if (strength[ballRow][(ballCol - 1)] > 0) {
+                    strength[ballRow][(ballCol - 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
                 }
             }
             else if ( (ballRow % 2) == 1) {
-                if (strength[(ballCol - 1)][ballRow] > 0) {
-                    strength[(ballCol - 1)][ballRow] = strength[(ballCol - 1)][ballRow] - 1;
-                    strength[(ballCol - 1)][(ballRow - 1)] = strength[(ballCol - 1)][(ballRow-1)] - 1;
+                if (strength[(ballRow)][ballCol - 1] > 0) {
+                    
+                    strength[(ballRow)][ballCol - 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
                 }
             }
-            if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
-                ballDown = true;
-            }
-            else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-                if (ballLeft == true) { //Ball is coming left-diagonally
-                    Serial.println("Left Reached!");
-                    ballLeft = true;
-                    ballRight = false;
-                    ballDown = true;
-                }
-                else if (ballRight = true) { //Ball is coming right-diagonally
-                    Serial.println(" Right Reached!");
-                    ballRight = true;
-                    ballLeft = false;
-                    ballDown = true;
-                }
-                
-            }
+            
         }
+        
     }
     
     else if (level == 2) {
