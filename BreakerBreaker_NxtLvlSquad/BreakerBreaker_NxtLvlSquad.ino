@@ -468,6 +468,8 @@ void setup()
     clearBoard();
     board.initStrength();
     board.initBoard();
+    printMessage("LEVEL"); // Find a way to implement Level in loop rather than setup?
+    printMessage(board.getLevel());
     printMessage("LIVES");
     printMessage(board.getLives());
 }
@@ -487,7 +489,6 @@ void loop()
     }
     Serial.println(pins.buttonState); // Prints out the state of the button ( 1 = Pressed/HIGH, 0 = Not pressed/LOW)
     delay (5);
- 
     
     //matrix.clear();
     clearBoard(); // another way to clear the board
@@ -516,6 +517,8 @@ void loop()
         printMessage(board.getLevel());
         printMessage("LIVES");
         printMessage(board.getLives());
+        board.setPause();
+
     }
     
     if (board.lostBall() == true) {
@@ -541,9 +544,13 @@ void loop()
     else {
       board.setBallCol(14);
       board.setBallRow(board.getPaddlePos());
+      board.setBallRight(false);
+      board.setBallLeft(true);
+      board.setBallDown(false);
+      board.setPause();
     }
     
-    delay(300); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
+    delay(200); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
     
 }
 
@@ -553,11 +560,7 @@ void loop()
 
 
 Board::Board() {
-    
-    
-    
-    
-    
+  
     paddlePos = 3;
     
     paddleHeight = 7;
@@ -821,7 +824,10 @@ void Board::initBoard() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 10; j++) {
                 if (j == 0 || j == 1 || j == 2 || j == 9 || j == 10) {
-                    strength[i][j] = rand() % 3 + 1;
+                  int randVar;
+                  randVar = rand() % 3 + 1;
+                    strength[i][j] = randVar;
+                    strength[i + 1][j] = randVar;
                 }
             }
         }
@@ -1294,7 +1300,7 @@ void Board::hitBlock() {
             }
             
         }
-        else if (ballCol == 9 || ballCol == 8)  { //When ball is hitting from the top -- only possible for lower-tier blocks
+        else if (ballCol == 9 || ballCol == 8 || ballCol == 13)  { //When ball is hitting from the top -- only possible for lower-tier blocks
              if ( (ballRow % 2) == 0) {
                 
                 if (strength[ballRow][(ballCol + 1)] > 0) {
