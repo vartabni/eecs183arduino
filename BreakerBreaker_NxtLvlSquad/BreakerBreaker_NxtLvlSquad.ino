@@ -468,6 +468,7 @@ void setup()
     clearBoard();
     board.initStrength();
     board.initBoard();
+    printMessage("LIVES");
     printMessage(board.getLives());
 }
 
@@ -481,18 +482,21 @@ void loop()
     
     // Button set-up work cont.
     pins.buttonState = digitalRead(pins.button);
-    //Serial.println(pins.buttonState); // Prints out the state of the button ( 1 = Pressed/HIGH, 0 = Not pressed/LOW)
+    if (pins.buttonState) {
+      board.resetPause();
+    }
+    Serial.println(pins.buttonState); // Prints out the state of the button ( 1 = Pressed/HIGH, 0 = Not pressed/LOW)
     delay (5);
+ 
     
     //matrix.clear();
     clearBoard(); // another way to clear the board
     board.displayBlocks();
     matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
-    
+
     board.hitPaddle();
     board.hitWall();
     board.hitBlock();
-    board.updateBall();
     board.lostBall();
     board.levelComplete();
     
@@ -503,15 +507,42 @@ void loop()
     board.setPaddlePos(calculatePaddlePosition(pins.val));
     pins.val = analogRead(pins.potPin);
     
-    
-    
     matrix.writeDisplay(); //display all changes made in one iteration of loop
     
     if (board.levelComplete() == true) {
         board.setLevel(board.getLevel() + 1);
-        board.initStrength();
         board.initBoard();
-        
+        printMessage("LEVEL");
+        printMessage(board.getLevel());
+        printMessage("LIVES");
+        printMessage(board.getLives());
+    }
+    
+    if (board.lostBall() == true) {
+      board.setLevel(board.getLevel());
+      board.setLives(board.getLives() - 1);
+      if (board.getLives() <= 0) {
+        gameOver();
+      }
+      else {
+        printMessage("LIVES");
+        printMessage(board.getLives());
+        board.setBallRow(board.getPaddlePos());
+        board.setBallCol(14);
+        board.setBallRight(false);
+        board.setBallLeft(true);
+        board.setBallDown(false);
+        board.setPause();
+      }
+      board.initStrength();
+      board.initBoard();
+    }
+    
+    if (board.getPaused() == false) {
+      board.updateBall();
+    }
+    else {
+      board.setBallCol(14);  
     }
     
     delay(300); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
@@ -1343,7 +1374,7 @@ void Board::hitBlock() {
                 }
             }
             else if ( (ballRow % 2) == 1) {
-                if (strength[(ballRow)][ballCol + 1] > 0) {
+                if (strength[(ballRow)][ballCol - 1] > 0) {
                     
                     strength[(ballRow)][ballCol - 1] -= 1;
                     strength[(ballRow - 1)][(ballCol - 1)] -= 1;
@@ -1416,6 +1447,7 @@ void Board::hitBlock() {
                     }
                 }
             }
+            
         }
     }
 }
@@ -1504,18 +1536,16 @@ int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
 //use text size 1 and delay of 50
 
 void printMessage(int number) {
-    matrix.setRotation(0); // could be 2, might have to get rid of or if we keep it, deset it
-    if (number >= 10) { // if number is greater than 10 it has to scroll
-        matrix.setTextWrap(false); // makes it scoll marquee style
-        static_cast<char>(number);
-        matrix.drawChar(3, 6, number, 1, 0, 1);
-        delay(50);
-    }
-    else { // if number between 0-9
-        static_cast<char>(number);
-        matrix.drawChar(3, 6, number, 1, 0, 1);
-        delay(50);
-    }
+  matrix.setTextSize(1);
+  matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
+  matrix.setTextColor(LED_ON);
+  for (int8_t x=7; x>=-36; x--) {
+    matrix.clear();
+    matrix.setCursor(x,0);
+    matrix.print(number);
+    matrix.writeDisplay();
+    delay(100);
+  }
 }
 
 //EFFECTS:displays string text needed(suchs as "LIVES" or "LEVEL") on the board. If it
@@ -1525,12 +1555,16 @@ void printMessage(int number) {
 //use text size 1 and delay of 50
 
 void printMessage(String message) {
-    matrix.setRotation(0); // could be 2
-    matrix.setCursor(0, 6);
-    matrix.setTextColor(1);
-    matrix.setTextSize(1);
-    matrix.setTextWrap(false);
-    delay(50);
+  matrix.setTextSize(1);
+  matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
+  matrix.setTextColor(LED_ON);
+  for (int8_t x=7; x>=-36; x--) {
+    matrix.clear();
+    matrix.setCursor(x,0);
+    matrix.print(message);
+    matrix.writeDisplay();
+    delay(100);
+  }
 }
 
 
