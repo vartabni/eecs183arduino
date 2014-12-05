@@ -460,7 +460,7 @@ void setup()
     pins.val = analogRead(A0);
     
     // Beginning work on button set-up
-    pins.button = 0;
+    pins.button = 7;
     pins.buttonState = 0;
     pinMode(pins.button, INPUT);
     
@@ -519,7 +519,6 @@ void loop()
     }
     
     if (board.lostBall() == true) {
-      board.setLevel(board.getLevel());
       board.setLives(board.getLives() - 1);
       if (board.getLives() <= 0) {
         gameOver();
@@ -534,15 +533,14 @@ void loop()
         board.setBallDown(false);
         board.setPause();
       }
-      board.initStrength();
-      board.initBoard();
     }
     
     if (board.getPaused() == false) {
       board.updateBall();
     }
     else {
-      board.setBallCol(14);  
+      board.setBallCol(14);
+      board.setBallRow(board.getPaddlePos());
     }
     
     delay(300); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
@@ -858,7 +856,7 @@ void Board::updateBall() {
 }
 
 boolean Board::lostBall() {
-    if (ballRow == 15) {
+    if (ballCol >= 15) {
         return true;
     }
     else {
