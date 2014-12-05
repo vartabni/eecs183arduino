@@ -481,25 +481,58 @@ void loop()
     //YOUR CODE GOES HERE
     matrix.clear();
 //    clearBoard();
-    board.displayBlocks();
+//    board.displayBlocks(); uncomment
+    
+//    board.hitPaddle();
+//    board.hitWall();
+//    board.hitBlock();
+//    pins.val = analogRead(pins.potPin); dont use
+//    pins.val = analogRead(A0); dont use
+//    board.setPaddlePos(calculatePaddlePosition(pins.val)); dont use
+    pins.val = calculatePaddlePosition(analogRead(pins.val));
+    board.setPaddlePos(pins.val);
+    
+    int newVal = pins.val;
     matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
     matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // left block of bottom paddle
     matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON); // right block of bottom paddle
     matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON); // left block of the top paddle in row 9
     matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON); // right block of top paddle in row 9
     
-    board.hitPaddle();
-    board.hitWall();
-    board.hitBlock();
-//    pins.val = analogRead(A0);
-//    board.setPaddlePos(calculatePaddlePosition(pins.val));
-    board.updateBall();
-    board.hitPaddle();
-    board.hitWall();
-    board.hitBlock();
-    board.updateBall();
-    board.lostBall();
-    board.levelComplete();
+    if (pins.val > newVal) { // moves paddle to the right
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_OFF); // turns current paddles off so they can move
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_OFF);
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_OFF);
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_OFF);
+    int input = board.getPaddlePos();
+    board.setPaddlePos(++input); // increments paddlePos so it can move over
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // turns on/moves the paddle to the right
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON);
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON);
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON);
+    }
+    else if (pins.val < newVal) { //moving to the left
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_OFF); // turns current paddles off so they can move
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_OFF);
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_OFF);
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_OFF);
+    int input1 = board.getPaddlePos();
+    board.setPaddlePos(--input1); // decrements paddlePos so it can move over
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // turns on/moves the paddle to the right
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON);
+    matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight() - 8, LED_ON);
+    matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight() - 8, LED_ON);
+    }
+    else if (pins.val == newVal) {
+    }
+    
+//    board.updateBall();
+//    board.hitPaddle();
+//    board.hitWall();
+//    board.hitBlock();
+//    board.updateBall();
+//    board.lostBall();
+//    board.levelComplete();
     
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
