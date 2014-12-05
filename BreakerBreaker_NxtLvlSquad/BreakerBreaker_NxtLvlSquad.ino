@@ -484,13 +484,14 @@ void loop()
     board.displayBlocks();
     matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
     
+    Serial.println(board.getBallRow());
+    Serial.println(board.getBallCol());
     board.hitPaddle();
     board.hitWall();
     board.hitBlock(); 
     board.updateBall();
-    board.hitPaddle();
-    board.hitWall();
-    board.hitBlock();
+
+   
 
     matrix.drawPixel(board.getPaddlePos(), 15, LED_ON); // left block of bottom paddle
     matrix.drawPixel(board.getPaddlePos() + 1, 15, LED_ON); // right block of bottom paddle
@@ -532,9 +533,9 @@ Board::Board() {
     
     level = 1;
     
-    ballRow = 0;
+    ballRow = 3;
     
-    ballCol = 0;
+    ballCol = 14;
     
     ballLeft = true;
     
@@ -712,8 +713,9 @@ void Board::initBoard() {
     paddlePos = 3;
     setPaddlePos(paddlePos);
     ballRow = paddlePos;
-    ballCol = 14;
+    ballCol = 13;
     ballRight = false;
+    ballLeft = true;
     ballDown = false;
     
     if (level == 1) {
@@ -763,7 +765,7 @@ void Board::initBoard() {
     
     if (level == 5) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 11; j++) {
+            for (int j = 0; j < 10; j++) {
                 if (j == 0) {
                     strength[i][j] = 3;
                 }
@@ -796,7 +798,7 @@ void Board::displayBlocks() {
         for (int j = 0; j < 16; j++) {
             
             if (strength[i][j] > 0) {
-                matrix.drawPixel(i, j, LED_ON); // error: 'drawPixel' was not declared in this scope
+                matrix.drawPixel(i, j, LED_ON);
             }
         }
     }
@@ -805,21 +807,21 @@ void Board::displayBlocks() {
 
 void Board::updateBall() {
     if (ballRight == true) {
-        ballCol += 1;
+        ballRow += 1;
     }
     if (ballLeft == true) {
-        ballCol -= 1;
-    }
-    if (ballDown == true) {
         ballRow -= 1;
     }
+    if (ballDown == true) {
+        ballCol += 1;
+    }
     if (ballDown == false) {
-        ballRow += 1;
+        ballCol -= 1;
     }
 }
 
 boolean Board::lostBall() {
-    if (ballRow == 0) {
+    if (ballRow == 15) {
         return true;
     }
     else {
@@ -829,29 +831,30 @@ boolean Board::lostBall() {
 
 void Board::hitWall() {
     
-    if ((ballCol == 0 || ballCol == 7) && ballRow == 0) {  //Redirects ball when upper corners are hit
-        if (ballCol == 0 && ballLeft == true && ballDown == false) { //Hitting left corner coming from left
+    if ((ballRow == 0 || ballRow == 7) && ballCol == 0) {  //Redirects ball when upper corners are hit
+        if (ballRow == 0 && ballLeft == true && ballDown == false) { //Hitting left corner coming from left
             ballLeft = false;
             ballRight = true;
             ballDown = true;
         }
-        else if (ballCol == 7 && ballRight == true && ballDown == false) { //Hitting right corner coming from right
+        else if (ballRow == 7 && ballRight == true && ballDown == false) { //Hitting right corner coming from right
             ballRight = false;
             ballLeft = true;
             ballDown = true;
         }
     }
-    else if ((ballCol == 0) || (ballCol == 7)) { //Redirects ball if left/right walls are hit
+    else if ((ballRow == 0) || (ballRow == 7)) { //Redirects ball if left/right walls are hit
         if (ballRight == true) { //Ball is going right (hitting right wall)
             ballRight = false;
             ballLeft = true;
         }
         else { //Ball is going left (hitting left wall)
+            Serial.println("Reached!");
             ballLeft = false;
             ballRight = true;
         }
     }
-    else if (ballRow == 0) { //Redirects ball if top wall is hit
+    else if (ballCol == 0) { //Redirects ball if top wall is hit
         if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
             ballDown = true;
         }
@@ -870,8 +873,8 @@ void Board::hitWall() {
     }
 }
 
-void Board::hitPaddle() {
-    if (ballRow == 1 || ballRow == 10) {
+void Board::hitPaddle() { // CODE WHEN BALL HITS THE *BOTTOM* OF THE *TOP PADDLE*!!!
+    if (ballRow == 14 || ballRow == 6) {
         if (ballCol >= (paddlePos - 1) && ballDown == true) { // Redirects the ball when it hits the upper/lower paddle
             if ((ballLeft == true) && (ballRight == false)) { //Ball hits paddle from a left-diagonal
                 if (ballCol == (paddlePos + 1)) { //Ball hits right side of paddle
@@ -932,17 +935,17 @@ void Board::hitPaddle() {
 void Board::hitBlock() {
     // Note: I decided to code this to be level-dependent (possibly not the best way)
     //       If you have any other ideas let me know! Redirection code is same/copied between levels
-    if (level == 1) {
-        if (ballRow == 14) {
-          if ( (ballCol % 2) == 0){
-            if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
+    if (level == 1) { // NOTE: BALLCOL / BALLROW SWITCHED FOR THIS LEVEL ONLY!!! (HINT: SWITCH FOR OTHER LEVELS, PLEASE.)
+        if (ballCol == 1) {
+          if ( (ballRow % 2) == 0){
+            if (strength[(ballCol + 1)][ballRow] > 0) {
+                strength[(ballCol + 1)][ballRow] = strength[(ballCol + 1)][ballRow] - 1;
+                strength[(ballCol + 1)][(ballRow + 1)] = strength[(ballCol + 1)][(ballRow + 1)] - 1;
             }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
+            else if ( (ballRow % 2) == 1){
+              if (strength[(ballCol + 1)][ballRow] > 0) {
+                strength[(ballCol + 1)][ballRow] = strength[(ballCol + 1)][ballRow] - 1;
+                strength[(ballCol + 1)][(ballRow - 1)] = strength[(ballCol + 1)][(ballRow-1)] - 1;
               }
             }
                 if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
@@ -964,7 +967,7 @@ void Board::hitBlock() {
         }
     }
     else if (level == 2) {
-        if (ballRow == 13 || ballRow == 14) {
+        if (ballRow == 2 || ballRow == 1) {
           if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -996,7 +999,7 @@ void Board::hitBlock() {
             }
         }
     else if (level == 3) {
-        if (ballRow == 13 || ballRow == 14) {
+        if (ballRow == 2 || ballRow == 1) {
           if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1027,7 +1030,7 @@ void Board::hitBlock() {
         }
     }
     else if (level == 4) {
-        if (ballRow == 12 || ballRow == 13 || ballRow == 14) {
+        if (ballRow == 3 || ballRow == 2 || ballRow == 1) {
             if ( (ballCol % 2) == 0){ // creates a two block segment consisting of rows (0&1) (2&3) (4&5) (6&7). makes sure column is even
             if (strength[(ballRow + 1)][ballCol] > 0) { // checks the strength of the block in the column where "contact is made"
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1; //decrements the strength of the even column pixel of the block hit
@@ -1058,7 +1061,7 @@ void Board::hitBlock() {
         }
     }
     else if (level == 5) { //Two-tiered block formation is introduced
-        if (ballRow == 14 || ballRow == 12 || ballRow == 4 || ballRow == 5) { //When the ball is hitting from the bottom
+        if (ballRow == 1 || ballRow == 3 || ballRow == 9 || ballRow == 8) { //When the ball is hitting from the bottom
             if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1087,7 +1090,7 @@ void Board::hitBlock() {
                 }
             }
         }
-        else if (ballRow == 6 || ballRow == 7)  { //When ball is hitting from the top -- only possible for lower-tier blocks
+        else if (ballRow == 9 || ballRow == 8)  { //When ball is hitting from the top -- only possible for lower-tier blocks
             if ( (ballCol % 2) == 0){ 
             if (strength[(ballRow - 1)][ballCol] > 0) { 
                 strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1120,7 +1123,7 @@ void Board::hitBlock() {
     
     
     else { //Level is 6 or higher -- block strength is randomized at this stage
-        if (ballRow == 14 || ballRow == 13 || ballRow == 12 || ballRow == 5 || ballRow == 4) { //Ball is hitting from the bottom
+        if (ballRow == 1 || ballRow == 2 || ballRow == 3 || ballRow == 8 || ballRow == 9) { //Ball is hitting from the bottom
             if ( (ballCol % 2) == 0){
             if (strength[(ballRow + 1)][ballCol] > 0) {
                 strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1149,7 +1152,7 @@ void Board::hitBlock() {
                 }
             }
         }
-        else if (ballRow == 6 || ballRow == 7) { //Ball is hitting from the top -- on the lower-tiered blocks
+        else if (ballRow == 8 || ballRow == 9) { //Ball is hitting from the top -- on the lower-tiered blocks
             if ( (ballCol % 2) == 0){ 
             if (strength[(ballRow - 1)][ballCol] > 0) {
                 strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
@@ -1187,7 +1190,7 @@ void Board::hitBlock() {
 
 boolean Board::levelComplete() {
     for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 15; j++) {
+        for (int j = 0; j < 16; j++) {
             if (strength [i][j] > 0) { 
                 return false;
             }
@@ -1198,7 +1201,7 @@ boolean Board::levelComplete() {
 
 void Board::initStrength() {
     for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 15; j++) {
+        for (int j = 0; j < 16; j++) {
             strength [i][j] = 0;
         }
     }
