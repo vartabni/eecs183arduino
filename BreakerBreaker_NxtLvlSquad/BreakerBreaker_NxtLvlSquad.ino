@@ -1416,8 +1416,9 @@ void Board::hitBlock() {
                     }
                 }
             }
-            
         }
+    }
+}
 
 
 
