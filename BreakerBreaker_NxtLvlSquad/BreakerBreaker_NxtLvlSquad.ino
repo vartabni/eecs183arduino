@@ -468,8 +468,6 @@ void setup()
     clearBoard();
     board.initStrength();
     board.initBoard();
-    printMessage("LEVEL"); // Find a way to implement Level in loop rather than setup?
-    printMessage(board.getLevel());
     printMessage("LIVES");
     printMessage(board.getLives());
 }
@@ -487,8 +485,8 @@ void loop()
     if (pins.buttonState) {
       board.resetPause();
     }
-    Serial.println(pins.buttonState); // Prints out the state of the button ( 1 = Pressed/HIGH, 0 = Not pressed/LOW)
-    delay (5);
+    //Serial.println(pins.buttonState); // Prints out the state of the button ( 1 = Pressed/HIGH, 0 = Not pressed/LOW)
+    //delay (5);
     
     //matrix.clear();
     clearBoard(); // another way to clear the board
@@ -498,6 +496,7 @@ void loop()
     board.hitPaddle();
     board.hitWall();
     board.hitBlock();
+    board.hitPaddle();
     board.hitBlock();
     board.hitBlock();
     board.hitBlock();
@@ -1076,7 +1075,6 @@ void Board::hitBlock() {
             }
             else if ( (ballRow % 2) == 1) {
                 if (strength[(ballRow)][ballCol - 1] > 0) {
-                    
                     strength[(ballRow)][ballCol - 1] -= 1;
                     strength[(ballRow - 1)][(ballCol - 1)] -= 1;
                     
@@ -1577,3 +1575,5 @@ void printMessage(String message) {
     delay(100);
   }
 }
+
+
