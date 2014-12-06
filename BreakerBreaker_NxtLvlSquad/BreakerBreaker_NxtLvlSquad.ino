@@ -567,7 +567,7 @@ Board::Board() {
     
     lives = 3;
     
-    level = 1;
+    level = 1000;
     
     ballRow = 3;
     
@@ -821,13 +821,27 @@ void Board::initBoard() {
         }
     }
     if (level >= 6) {
+      int randVal0 = rand() % 3 + 1;
+      int randVal1 = rand() % 3 + 1;
+      int randVal2 = rand() % 3 + 1;
+      int randVal9 = rand() % 4 + 1;
+      int randVal10 = rand() % 4 + 1;
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 10; j++) {
-                if (j == 0 || j == 1 || j == 2 || j == 9 || j == 10) {
-                  int randVar;
-                  randVar = rand() % 3 + 1;
-                    strength[i][j] = randVar;
-                    strength[i + 1][j] = randVar;
+            for (int j = 0; j < 11; j++) {
+                if (j == 0) {
+                  strength[i][j] = randVal0;
+                }
+                if (j == 1) {
+                  strength[i][j] = randVal1;
+                }
+                if (j == 2) {
+                  strength[i][j] = randVal2;
+                }
+                if (j == 9) {
+                  strength[i][j] = randVal9;
+                }
+                if (j == 10) {
+                  strength[i][j] = randVal10;
                 }
             }
         }
@@ -1197,7 +1211,6 @@ void Board::hitBlock() {
     else if (level == 4) {
         if (ballCol == 3 || ballCol == 2 || ballCol == 1) {
             if ( (ballRow % 2) == 0) {
-                
                 if (strength[ballRow][(ballCol - 1)] > 0) {
                     strength[ballRow][(ballCol - 1)] -= 1;
                     strength[(ballRow + 1)][(ballCol - 1)] -= 1;
@@ -1221,8 +1234,7 @@ void Board::hitBlock() {
                 }
             }
             else if ( (ballRow % 2) == 1) {
-                if (strength[(ballRow)][ballCol - 1] > 0) {
-                    
+                if (strength[(ballRow)][ballCol - 1] > 0) {  
                     strength[(ballRow)][ballCol - 1] -= 1;
                     strength[(ballRow - 1)][(ballCol - 1)] -= 1;
                     
@@ -1251,7 +1263,6 @@ void Board::hitBlock() {
     else if (level == 5) { //Two-tiered block formation is introduced
         if (ballCol == 1 || ballCol == 3 || ballCol == 10 || ballCol == 11) { //When the ball is hitting from the bottom
             if ( (ballRow % 2) == 0) {
-                
                 if (strength[ballRow][(ballCol - 1)] > 0) {
                     strength[ballRow][(ballCol - 1)] -= 1;
                     strength[(ballRow + 1)][(ballCol - 1)] -= 1;
@@ -1276,7 +1287,6 @@ void Board::hitBlock() {
             }
             else if ( (ballRow % 2) == 1) {
                 if (strength[(ballRow)][ballCol - 1] > 0) {
-                    
                     strength[(ballRow)][ballCol - 1] -= 1;
                     strength[(ballRow - 1)][(ballCol - 1)] -= 1;
                     
@@ -1302,7 +1312,6 @@ void Board::hitBlock() {
         }
         else if (ballCol == 9 || ballCol == 8 || ballCol == 13)  { //When ball is hitting from the top -- only possible for lower-tier blocks
              if ( (ballRow % 2) == 0) {
-                
                 if (strength[ballRow][(ballCol + 1)] > 0) {
                     strength[ballRow][(ballCol + 1)] -= 1;
                     strength[(ballRow + 1)][(ballCol + 1)] -= 1;
@@ -1327,7 +1336,6 @@ void Board::hitBlock() {
             }
             else if ( (ballRow % 2) == 1) {
                 if (strength[(ballRow)][ballCol + 1] > 0) {
-                    
                     strength[(ballRow)][ballCol + 1] -= 1;
                     strength[(ballRow - 1)][(ballCol + 1)] -= 1;
                     
@@ -1351,10 +1359,9 @@ void Board::hitBlock() {
             } 
         }
     }
-    else { //Level is 6 or higher -- block strength is randomized at this stage
+    else if (level >= 6) { //Level is 6 or higher -- block strength is randomized at this stage
         if (ballCol == 1 || ballCol == 2 || ballCol == 3 || ballCol == 10 || ballCol == 11) { //Ball is hitting from the bottom
             if ( (ballRow % 2) == 0) {
-                
                 if (strength[ballRow][(ballCol - 1)] > 0) {
                     strength[ballRow][(ballCol - 1)] -= 1;
                     strength[(ballRow + 1)][(ballCol - 1)] -= 1;
@@ -1403,7 +1410,7 @@ void Board::hitBlock() {
             }
             
         }
-        else if (ballCol == 8 || ballCol == 9) { //Ball is hitting from the top -- on the lower-tiered blocks
+        else if (ballCol == 8 || ballCol == 9 || ballCol == 0 || ballCol == 1) { //Ball is hitting from the top -- on the lower-tiered blocks
             if ( (ballRow % 2) == 0) {
                 
                 if (strength[ballRow][(ballCol + 1)] > 0) {
