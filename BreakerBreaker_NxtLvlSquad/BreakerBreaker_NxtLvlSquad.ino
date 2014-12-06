@@ -496,7 +496,6 @@ void loop()
     board.hitPaddle();
     board.hitWall();
     board.hitBlock();
-    board.hitPaddle();
     board.hitBlock();
     board.hitBlock();
     board.hitBlock();
