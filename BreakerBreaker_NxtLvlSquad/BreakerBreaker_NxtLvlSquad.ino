@@ -498,6 +498,10 @@ void loop()
     board.hitPaddle();
     board.hitWall();
     board.hitBlock();
+    board.hitBlock();
+    board.hitBlock();
+    board.hitBlock();
+    board.hitWall();
     board.lostBall();
     board.levelComplete();
     
@@ -550,7 +554,7 @@ void loop()
       board.setPause();
     }
     
-    delay(200); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
+    delay(300); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
     
 }
 
@@ -567,7 +571,7 @@ Board::Board() {
     
     lives = 3;
     
-    level = 1000;
+    level = 1;
     
     ballRow = 3;
     
@@ -1386,7 +1390,6 @@ void Board::hitBlock() {
             }
             else if ( (ballRow % 2) == 1) {
                 if (strength[(ballRow)][ballCol - 1] > 0) {
-                    
                     strength[(ballRow)][ballCol - 1] -= 1;
                     strength[(ballRow - 1)][(ballCol - 1)] -= 1;
                     
@@ -1410,7 +1413,7 @@ void Board::hitBlock() {
             }
             
         }
-        else if (ballCol == 8 || ballCol == 9 || ballCol == 0 || ballCol == 1) { //Ball is hitting from the top -- on the lower-tiered blocks
+        else if (ballCol == 8 || ballCol == 9 || ballCol == 0 || ballCol == 1 || ballCol == 2) { //Ball is hitting from the top -- on the lower-tiered blocks
             if ( (ballRow % 2) == 0) {
                 
                 if (strength[ballRow][(ballCol + 1)] > 0) {
@@ -1426,18 +1429,11 @@ void Board::hitBlock() {
                         ballLeft = false;
                         ballDown = false;
                     }
-                    if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft = true;
-                        ballRight = false;
-                        ballDown = false;
-                        }
-                        
                     }
                 }
             }
             else if ( (ballRow % 2) == 1) {
                 if (strength[(ballRow)][ballCol + 1] > 0) {
-                    
                     strength[(ballRow)][ballCol + 1] -= 1;
                     strength[(ballRow - 1)][(ballCol + 1)] -= 1;
                     
@@ -1513,7 +1509,7 @@ void clearBoard() {
 
 //EFFECTS: returns the column position of the left pixel of the paddle
 
-int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
+int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 0s
     //    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0, potPin?
     //    delay(1);
     if (val >= 0 && val <= 150) {
@@ -1577,5 +1573,3 @@ void printMessage(String message) {
     delay(100);
   }
 }
-
-
