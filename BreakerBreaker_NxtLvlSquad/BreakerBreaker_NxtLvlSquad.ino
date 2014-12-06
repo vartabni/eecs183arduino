@@ -501,7 +501,6 @@ void loop()
     board.hitBlock();
     board.hitBlock();
     board.hitBlock();
-    board.hitWall();
     board.lostBall();
     board.levelComplete();
     
@@ -1429,6 +1428,11 @@ void Board::hitBlock() {
                         ballLeft = false;
                         ballDown = false;
                     }
+                    if (ballLeft == true) { //Ball is coming left-diagonally
+                        ballLeft = true;
+                        ballRight = false;
+                        ballDown = false;
+                        }
                     }
                 }
             }
