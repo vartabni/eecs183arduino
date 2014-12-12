@@ -1,9 +1,9 @@
 final_project_un5iwscq5mi
 =========================
 
-Our project is located in the folder
-BreakerBreaker_NxtLvlSquad
+Our reach implementation is located in the folder
+BreakerBreaker_NxtLvlSquad_Reach
 and is the file named
-BreakerBreaker_NxtLvlSquad.ino
+BreakerBreaker_NxtLvlSquad_Reach.ino
 
 Thanks :)
