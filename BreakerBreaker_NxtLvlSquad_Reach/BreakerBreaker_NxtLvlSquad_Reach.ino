@@ -193,7 +193,7 @@ void loop()
   Serial.print("pot val = "); // debugging statements
   Serial.println(pins.val);
 
-  // set all pixels on the game board to LED_OFF
+  // set all pixels on the game board to Color333(0, 0, 0) == Black
   clearBoard();
 
   // read the current value of the analog input for the paddle
@@ -213,12 +213,12 @@ void loop()
   Serial.print(pins.val);
 
   // draw the lower paddle on the board
-  matrix.drawPixel( board.getPaddlePos(), 15, LED_ON);
-  matrix.drawPixel( board.getPaddlePos() + 1, 15, LED_ON);  //Turns on the LEDs indicating the paddle
+  matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(0, 0, 7)); // matrix.Color333(0,0,7) creates a blue LED light
+  matrix.drawPixel( board.getPaddlePos() + 1, 15, matrix.Color333(0, 0, 7));  //Turns on the LEDs indicating the paddle
 
   // draw the upper paddle on the board
-  matrix.drawPixel( board.getPaddlePos(), board.getPaddleHeight(), LED_ON);
-  matrix.drawPixel( board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON);  //Turns on the LEDs indicating the paddle
+  matrix.drawPixel( board.getPaddlePos(), board.getPaddleHeight(), matrix.Color333(0, 0, 7));
+  matrix.drawPixel( board.getPaddlePos() + 1, board.getPaddleHeight(), matrix.Color333(0, 0, 7));  //Turns on the LEDs indicating the paddle
 
   // check for a board with no blocks (strength for all pixels == 0)
   if(board.levelComplete()){     //checks if the level is done
@@ -279,7 +279,7 @@ void loop()
   }
 
   // draw the ball on the screen
-  matrix.drawPixel(board.getBallCol(), board.getBallRow(), LED_ON);
+  matrix.drawPixel(board.getBallCol(), board.getBallRow(), matrix.Color333(0, 0, 7));
 
   // display all blocks to the display
   board.displayBlocks();
@@ -291,11 +291,7 @@ void loop()
 
 void clearBoard(  )
 {
-  for( int j = 0; j < 8; j++) {
-    for( int i = 0; i < 16; i++ ) {
-      matrix.drawPixel(j, i, LED_OFF);
-    }
-  }
+      matrix.fill(matrix.Color333(0, 0, 0)); // Fills entire matrix with "black"
 }												// end of clearBoard()
 
 void initStrength(int strength[][16])
@@ -692,7 +688,7 @@ void Board::displayBlocks(  )
   for(int i = 0; i < 15; i++) {
     for(int j = 0; j < 8; j++ ) {
       if( strength[j][i] > 0 ) {
-        matrix.drawPixel(j, i, LED_ON);
+        matrix.drawPixel(j, i, matrix.Color333(0, 0, 7));
       }
     }
   }
@@ -765,7 +761,7 @@ void gameOver(){
 void printMessage(int number) {
   matrix.setTextSize(1);
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
-  matrix.setTextColor(LED_ON);
+  matrix.setTextColor(matrix.Color333(0, 0, 7));
   for (int8_t x=7; x>=-36; x--) {
     matrix.clear();
     matrix.setCursor(x,0);
@@ -779,7 +775,7 @@ void printMessage(int number) {
 void printMessage(String message) {
   matrix.setTextSize(1);
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
-  matrix.setTextColor(LED_ON);
+  matrix.setTextColor(matrix.Color333(0, 0, 7));
   for (int8_t x=7; x>=-36; x--) {
     matrix.clear();
     matrix.setCursor(x,0);
