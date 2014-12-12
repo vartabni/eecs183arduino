@@ -163,8 +163,16 @@ void printMessage(int number);
 //use text size 1 and delay of 50
 void printMessage(String message);
 
-// Matrix class instance to display all game objects to 8x16 LED Adafruit matrix
-Adafruit_8x16matrix matrix = Adafruit_8x16matrix();
+// Matrix class instance to display all game objects to 16x32 LED Adafruit matrix
+RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, true);
+
+// Definitions for each pin used in the 16x32 matrix
+#define CLK 8  // MUST be on PORTB! (Need to move speaker from digital 8 to make room!)
+#define LAT A3
+#define OE  9
+#define A   A0
+#define B   A1
+#define C   A2
 
 // struct to hold all relevant IO pin data
 struct Pins{
