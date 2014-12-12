@@ -11,6 +11,13 @@
 #include "stdlib.h"
 #include "math.h"
 
+/* IMPORTANT NOTE ABOUT CHANGE-OF-PINS!!!
+  - 16x32 matrix has to have digital pins 2 through 7, with the clock pin as digital 8
+    - This is important because right now we have the speaker using digital 8
+  - Tutorial for 16x32 matrix also uses analog pins 0 through 3 and digital 9
+
+*/
+
 class Board		//Contains necessary values to keep track of the game
 {
 public:
