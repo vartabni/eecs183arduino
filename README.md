@@ -8,6 +8,8 @@ BreakerBreaker_NxtLvlSquad_Reach.ino
 
 Thanks :)
 
+
+
 Extension List (Planned):
 
   Adapting to the large 16x32 RGB LED matrix - 6 points
@@ -19,6 +21,8 @@ Extension List (Planned):
   Adding images for level completion / display aesthetic - 1 point
   
   Shield for controller - (at least) 1 point
+  
+  
 
 Extension List (Completed):
 
