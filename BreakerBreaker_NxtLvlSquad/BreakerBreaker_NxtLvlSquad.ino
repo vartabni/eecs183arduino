@@ -1,3 +1,5 @@
+#include <Adafruit_GFX.h>
+
 //MircroArcade EECS 183 2014 Showcase
 
 //Breaker Breaker

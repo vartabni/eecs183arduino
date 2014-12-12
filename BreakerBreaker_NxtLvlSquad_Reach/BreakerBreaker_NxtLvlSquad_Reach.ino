@@ -1,10 +1,13 @@
+
+
 //MircroArcade EECS 183 2014 Showcase
 //Breaker Breaker
 
 #include <Wire.h>
 #include "Adafruit_LEDBackpack.h"
 #include "Adafruit_GFX.h"
-#include "RGBMatrixPanel.h"
+#include "RGBmatrixPanel.h"
+#include "gamma.h"
 #include "stdlib.h"
 #include "math.h"
 
