@@ -1,5 +1,3 @@
-
-
 //MircroArcade EECS 183 2014 Showcase
 
 //Breaker Breaker
@@ -416,7 +414,7 @@ struct Pins
     
     int val;		//value of the potentiometer
     
-    int button;		//input pin for the button
+    int button;		//input pin for the f
     
     int buttonState;    // current state of the button
     
@@ -458,16 +456,21 @@ void setup()
 {
     Serial.begin(9600); // for potentiometer paddlePos
     pins.potPin = 0;
-   // pins.val = 0;
+    
     pins.val = analogRead(A0);
-    pins.button = 0;
+    
+    // Beginning work on button set-up
+    pins.button = 7;
+    pins.buttonState = 0;
     pinMode(pins.button, INPUT);
+    
     matrix.begin(0x70);
     clearBoard();
     board.initStrength();
     board.initBoard();
+    printMessage("LIVES");
     printMessage(board.getLives());
-  }
+}
 
 
 
@@ -477,40 +480,78 @@ void loop()
 
 {
     
-    //everything needed for the game to play goes here 
-    // hitpaddle, hitblocks, hitwall
-    //YOUR CODE GOES HERE
-    matrix.clear();
+    // Button set-up work cont.
+    pins.buttonState = digitalRead(pins.button);
+    if (pins.buttonState) {
+      board.resetPause();
+    }
+    //Serial.println(pins.buttonState); // Prints out the state of the button ( 1 = Pressed/HIGH, 0 = Not pressed/LOW)
+    //delay (5);
+    
+    //matrix.clear();
+    clearBoard(); // another way to clear the board
     board.displayBlocks();
     matrix.drawPixel(board.getBallRow(), board.getBallCol(), LED_ON); // draws the ball
-    
-    Serial.println(board.getBallRow());
-    Serial.println(board.getBallCol());
+
     board.hitPaddle();
     board.hitWall();
-    board.hitBlock(); 
-    board.updateBall();
-
-   
-
+    board.hitBlock();
+    board.hitBlock();
+    board.hitBlock();
+    board.hitBlock();
+    board.lostBall();
+    board.levelComplete();
+    
     matrix.drawPixel(board.getPaddlePos(), 15, LED_ON); // left block of bottom paddle
     matrix.drawPixel(board.getPaddlePos() + 1, 15, LED_ON); // right block of bottom paddle
     matrix.drawPixel(board.getPaddlePos(), board.getPaddleHeight(), LED_ON); // left block of the top paddle in row 9
     matrix.drawPixel(board.getPaddlePos() + 1, board.getPaddleHeight(), LED_ON); // right block of top paddle in row 9
     board.setPaddlePos(calculatePaddlePosition(pins.val));
     pins.val = analogRead(pins.potPin);
-
-//    pins.val = calculatePaddlePosition(analogRead(pins.potPin));
-//    board.setPaddlePos(pins.val);
-
-//    board.updateBall();
-//    board.lostBall();
-//    board.levelComplete();
-    
     
     matrix.writeDisplay(); //display all changes made in one iteration of loop
     
-    delay(150); //to slow it down and make it easier to debug. also makes the paddle lag
+    if (board.levelComplete() == true) {
+        board.setLevel(board.getLevel() + 1);
+        board.initBoard();
+        printMessage("LEVEL");
+        printMessage(board.getLevel());
+        printMessage("LIVES");
+        printMessage(board.getLives());
+        board.setPause();
+
+    }
+    
+    if (board.lostBall() == true) {
+      board.setLives(board.getLives() - 1);
+      if (board.getLives() <= 0) {
+        gameOver();
+      }
+      else {
+        printMessage("LIVES");
+        printMessage(board.getLives());
+        board.setBallRow(board.getPaddlePos());
+        board.setBallCol(14);
+        board.setBallRight(false);
+        board.setBallLeft(true);
+        board.setBallDown(false);
+        board.setPause();
+      }
+    }
+    
+    if (board.getPaused() == false) {
+      board.updateBall();
+    }
+    else {
+      board.setBallCol(14);
+      board.setBallRow(board.getPaddlePos());
+      board.setBallRight(false);
+      board.setBallLeft(true);
+      board.setBallDown(false);
+      board.setPause();
+    }
+    
+    delay(300); //to slow it down and make it easier to debug. also makes the paddle lag .. Default is 150!
     
 }
 
@@ -520,11 +561,7 @@ void loop()
 
 
 Board::Board() {
-    
-    
-    
-   
-    
+  
     paddlePos = 3;
     
     paddleHeight = 7;
@@ -713,7 +750,7 @@ void Board::initBoard() {
     paddlePos = 3;
     setPaddlePos(paddlePos);
     ballRow = paddlePos;
-    ballCol = 13;
+    ballCol = 14;
     ballRight = false;
     ballLeft = true;
     ballDown = false;
@@ -765,7 +802,7 @@ void Board::initBoard() {
     
     if (level == 5) {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 10; j++) {
+            for (int j = 0; j < 11; j++) {
                 if (j == 0) {
                     strength[i][j] = 3;
                 }
@@ -775,20 +812,40 @@ void Board::initBoard() {
                 if (j == 2) {
                     strength[i][j] = 2;
                 }
-                if ((j == 9) || (j == 10)) {
+                if ((j == 9)) {
+                    strength[i][j] = 1;
+                }
+                if ((j == 10)) {
                     strength[i][j] = 1;
                 }
             }
         }
     }
     if (level >= 6) {
-      for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 10; j++) {
-          if (j == 0 || j == 1 || j == 2 || j == 9 || j == 10) {
-            strength[i][j] = rand() % 3 + 1;
-          }
+      int randVal0 = rand() % 3 + 1;
+      int randVal1 = rand() % 3 + 1;
+      int randVal2 = rand() % 3 + 1;
+      int randVal9 = rand() % 4 + 1;
+      int randVal10 = rand() % 4 + 1;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 11; j++) {
+                if (j == 0) {
+                  strength[i][j] = randVal0;
+                }
+                if (j == 1) {
+                  strength[i][j] = randVal1;
+                }
+                if (j == 2) {
+                  strength[i][j] = randVal2;
+                }
+                if (j == 9) {
+                  strength[i][j] = randVal9;
+                }
+                if (j == 10) {
+                  strength[i][j] = randVal10;
+                }
+            }
         }
-      }
     }
 }
 
@@ -796,7 +853,6 @@ void Board::initBoard() {
 void Board::displayBlocks() {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 16; j++) {
-            
             if (strength[i][j] > 0) {
                 matrix.drawPixel(i, j, LED_ON);
             }
@@ -821,7 +877,7 @@ void Board::updateBall() {
 }
 
 boolean Board::lostBall() {
-    if (ballRow == 15) {
+    if (ballCol >= 15) {
         return true;
     }
     else {
@@ -849,7 +905,6 @@ void Board::hitWall() {
             ballLeft = true;
         }
         else { //Ball is going left (hitting left wall)
-            Serial.println("Reached!");
             ballLeft = false;
             ballRight = true;
         }
@@ -859,52 +914,62 @@ void Board::hitWall() {
             ballDown = true;
         }
         else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-            if (ballRight == true) { //Ball is coming right-diagonally
-                ballRight == false;
-                ballLeft == true;
-                ballDown == true;
-            }
             if (ballLeft == true) { //Ball is coming left-diagonally
-                ballLeft == false;
-                ballRight == true;
-                ballDown == true;
+                ballLeft = true;
+                ballRight = false;
+                ballDown = true;
+            }
+            else if (ballRight == true) { //Ball is coming right-diagonally
+                ballRight = true;
+                ballLeft = false;
+                ballDown = true;
             }
         }
     }
 }
 
-void Board::hitPaddle() { // CODE WHEN BALL HITS THE *BOTTOM* OF THE *TOP PADDLE*!!!
-    if (ballRow == 14 || ballRow == 6) {
-        if (ballCol >= (paddlePos - 1) && ballDown == true) { // Redirects the ball when it hits the upper/lower paddle
+void Board::hitPaddle() {
+    if (ballCol == 14 || ballCol == 6) {
+        if (ballRow >= (paddlePos - 1) && ballDown == true) { // Redirects the ball when it hits the upper/lower paddle
             if ((ballLeft == true) && (ballRight == false)) { //Ball hits paddle from a left-diagonal
-                if (ballCol == (paddlePos + 1)) { //Ball hits right side of paddle
+                if (ballRow == (paddlePos + 2)) { //Ball hits the right corner of paddle
                     ballDown = false;
                     ballLeft = false;
                     ballRight = true;
                 }
-                else if (ballCol == paddlePos) { //Ball hits left side of paddle
+                else if (ballRow == (paddlePos + 1)) { //Ball hits right side of paddle
                     ballDown = false;
                     ballLeft = false;
                     ballRight = false;
                 }
-                else if (ballCol == (paddlePos - 1)) { ///Ball hits the left corner of paddle
+                else if (ballRow == paddlePos) { //Ball hits left side of paddle
+                    ballDown = false;
+                    ballLeft = false;
+                    ballRight = false;
+                }
+                else if (ballRow == (paddlePos - 1)) { ///Ball hits the left corner of paddle
                     ballDown = false;
                     ballLeft = true;
                     ballRight = false;
                 }
             }
             else if ((ballRight == true) && (ballLeft == false)) { //Ball hits paddle from a right-diagonal
-                if (ballCol == (paddlePos - 1)) { ///Ball hits the left corner of paddle
+                if (ballRow == (paddlePos - 1)) { ///Ball hits the left corner of paddle
                     ballDown = false;
                     ballLeft = true;
                     ballRight = false;
                 }
-                else if (ballCol == paddlePos) { //Ball hits left side of paddle
+                else if (ballRow == paddlePos) { //Ball hits left side of paddle
                     ballDown = false;
                     ballLeft = false;
                     ballRight = false;
                 }
-                else if (ballCol == (paddlePos + 1)) { //Ball hits right side of paddle
+                else if (ballRow == (paddlePos + 1)) { //Ball hits right side of paddle
+                    ballDown = false;
+                    ballLeft = false;
+                    ballRight = false;
+                }
+                else if (ballRow == (paddlePos + 2)) { //Ball hits right corner of paddle
                     ballDown = false;
                     ballLeft = false;
                     ballRight = true;
@@ -912,19 +977,67 @@ void Board::hitPaddle() { // CODE WHEN BALL HITS THE *BOTTOM* OF THE *TOP PADDLE
             }
             else if ((ballLeft == false) && (ballRight == false)) { //Ball hits paddle from straight down
                 
-                /*Note: The spec doesn't really give details for how we should code the paddle for this situation
-                 so for right now it just returns the ball back in a straight up motion, and only if the
-                 left/right hand sides of the paddle are hit -- not the left corner */
-                
-                if (ballCol == paddlePos) { //Ball hits left side of paddle
+                if (ballRow == paddlePos) { //Ball hits left side of paddle
                     ballDown = false;
-                    ballLeft = false;
+                    ballLeft = true;
                     ballRight = false;
                 }
-                else if (ballCol == (paddlePos + 1)) { //Ball htis right side of paddle
+                else if (ballRow == (paddlePos + 1)) { //Ball htis right side of paddle
                     ballDown = false;
                     ballLeft = false;
+                    ballRight = true;
+                }
+            }
+        }
+    }
+    
+    else if (ballCol == 8) {
+        if (ballRow >= (paddlePos - 1) && ballDown == false) { // Redirects the ball when it hits the lower paddle from the bottom
+            if ((ballLeft == true) && (ballRight == false)) { //Ball hits paddle from a left-diagonal
+                if (ballRow == (paddlePos + 2)) { //Ball hits the right corner of paddle
+                    ballDown = true;
+                    ballLeft = false;
+                    ballRight = true;
+                }
+                else if (ballRow == (paddlePos + 1)) { //Ball hits right side of paddle
+                    ballDown = true;
+                    ballLeft = true;
                     ballRight = false;
+                }
+                else if (ballRow == paddlePos) { //Ball hits left side of paddle
+                    ballDown = true;
+                    ballLeft = true;
+                    ballRight = false;
+                }
+            }
+            else if ((ballRight == true) && (ballLeft == false)) { //Ball hits paddle from a right-diagonal
+                if (ballRow == (paddlePos - 1)) { ///Ball hits the left corner of paddle
+                    ballDown = true;
+                    ballLeft = true;
+                    ballRight = false;
+                }
+                else if (ballRow == paddlePos) { //Ball hits left side of paddle
+                    ballDown = true;
+                    ballLeft = true;
+                    ballRight = false;
+                }
+                else if (ballRow == (paddlePos + 1)) { //Ball hits right side of paddle
+                    ballDown = true;
+                    ballLeft = true;
+                    ballRight = false;
+                }
+                
+            }
+            else if ((ballLeft == false) && (ballRight == false)) { //Ball hits paddle from straight up
+                if (ballRow == paddlePos) { //Ball hits left side of paddle
+                    ballDown = true;
+                    ballLeft = true;
+                    ballRight = false;
+                }
+                else if (ballRow == (paddlePos + 1)) { //Ball htis right side of paddle
+                    ballDown = true;
+                    ballLeft = false;
+                    ballRight = true;
                 }
             }
         }
@@ -933,253 +1046,416 @@ void Board::hitPaddle() { // CODE WHEN BALL HITS THE *BOTTOM* OF THE *TOP PADDLE
 
 
 void Board::hitBlock() {
-    // Note: I decided to code this to be level-dependent (possibly not the best way)
-    //       If you have any other ideas let me know! Redirection code is same/copied between levels
-    if (level == 1) { // NOTE: BALLCOL / BALLROW SWITCHED FOR THIS LEVEL ONLY!!! (HINT: SWITCH FOR OTHER LEVELS, PLEASE.)
+    if (level == 1) {
         if (ballCol == 1) {
-          if ( (ballRow % 2) == 0){
-            if (strength[(ballCol + 1)][ballRow] > 0) {
-                strength[(ballCol + 1)][ballRow] = strength[(ballCol + 1)][ballRow] - 1;
-                strength[(ballCol + 1)][(ballRow + 1)] = strength[(ballCol + 1)][(ballRow + 1)] - 1;
-            }
-            else if ( (ballRow % 2) == 1){
-              if (strength[(ballCol + 1)][ballRow] > 0) {
-                strength[(ballCol + 1)][ballRow] = strength[(ballCol + 1)][ballRow] - 1;
-                strength[(ballCol + 1)][(ballRow - 1)] = strength[(ballCol + 1)][(ballRow-1)] - 1;
-              }
-            }
-                if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
-                    ballDown = true;
-                }
-                else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-                    if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == true;
+            if ( (ballRow % 2) == 0) {
+                
+                if (strength[ballRow][(ballCol - 1)] > 0) {
+                    strength[ballRow][(ballCol - 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
                     }
-                    if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == true;
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol - 1] > 0) {
+                    strength[(ballRow)][ballCol - 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
+                }
+            }
+            
         }
+        
     }
+    
     else if (level == 2) {
-        if (ballRow == 2 || ballRow == 1) {
-          if ( (ballCol % 2) == 0){
-            if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
-            }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
-              }
-            }
-                if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
-                    ballDown = true;
-                }
-           
-                else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-                    if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == true;
+        if (ballCol == 2 || ballCol == 1) {
+            if ( (ballRow % 2) == 0) {
+                
+                if (strength[ballRow][(ballCol - 1)] > 0) {
+                    strength[ballRow][(ballCol - 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
                     }
-                }
-                    if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == true;
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol - 1] > 0) {
+                    
+                    strength[(ballRow)][ballCol - 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
+                }
+            }
+            
         }
+        
+    }
     else if (level == 3) {
-        if (ballRow == 2 || ballRow == 1) {
-          if ( (ballCol % 2) == 0){
-            if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
-            }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
-              }
-            }
-                if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
-                    ballDown = true;
-                }
-                else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-                    if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == true;
+        if (ballCol == 2 || ballCol == 1) {
+            if ( (ballRow % 2) == 0) {
+                
+                if (strength[ballRow][(ballCol - 1)] > 0) {
+                    strength[ballRow][(ballCol - 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
                     }
-                    if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == true;
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol - 1] > 0) {
+                    
+                    strength[(ballRow)][ballCol - 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
+                }
+            }
+            
         }
+        
     }
     else if (level == 4) {
-        if (ballRow == 3 || ballRow == 2 || ballRow == 1) {
-            if ( (ballCol % 2) == 0){ // creates a two block segment consisting of rows (0&1) (2&3) (4&5) (6&7). makes sure column is even
-            if (strength[(ballRow + 1)][ballCol] > 0) { // checks the strength of the block in the column where "contact is made"
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1; //decrements the strength of the even column pixel of the block hit
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1; // decrements the strength of the odd column pixel of the block hit by moving up 1 column.
-            }
-            else if ( (ballCol % 2) == 1){// creates a two block segment consisting of rows (0&1) (2&3) (4&5) (6&7). makes sure column is odd
-              if (strength[(ballRow + 1)][ballCol] > 0) {// checks the strength of the block in the column where "contact is made"
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1; // decrements the strength of the odd column pixel of block hit.
-                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1; // decrements the strength of the even column pixel of block hit by moving column down 1.
-              }
-            }
-                if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
-                    ballDown = true;
-                }
-                else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-                    if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == true;
+        if (ballCol == 3 || ballCol == 2 || ballCol == 1) {
+            if ( (ballRow % 2) == 0) {
+                if (strength[ballRow][(ballCol - 1)] > 0) {
+                    strength[ballRow][(ballCol - 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
                     }
-                    if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == true;
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol - 1] > 0) {  
+                    strength[(ballRow)][ballCol - 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
+                }
+            }
+            
         }
+        
     }
     else if (level == 5) { //Two-tiered block formation is introduced
-        if (ballRow == 1 || ballRow == 3 || ballRow == 9 || ballRow == 8) { //When the ball is hitting from the bottom
-            if ( (ballCol % 2) == 0){
-            if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
-            }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
-              }
-            }
-                if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
-                    ballDown = true;
-                }
-                else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-                    if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == true;
+        if (ballCol == 1 || ballCol == 3 || ballCol == 10 || ballCol == 11) { //When the ball is hitting from the bottom
+            if ( (ballRow % 2) == 0) {
+                if (strength[ballRow][(ballCol - 1)] > 0) {
+                    strength[ballRow][(ballCol - 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
                     }
-                    if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == true;
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol - 1] > 0) {
+                    strength[(ballRow)][ballCol - 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
+                }
+            }
+            
         }
-        else if (ballRow == 9 || ballRow == 8)  { //When ball is hitting from the top -- only possible for lower-tier blocks
-            if ( (ballCol % 2) == 0){ 
-            if (strength[(ballRow - 1)][ballCol] > 0) { 
-                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow - 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
-            }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow - 1)][ballCol] > 0) {
-                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow - 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
-              }
-            }
-                if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
+        else if (ballCol == 9 || ballCol == 8 || ballCol == 13)  { //When ball is hitting from the top -- only possible for lower-tier blocks
+             if ( (ballRow % 2) == 0) {
+                if (strength[ballRow][(ballCol + 1)] > 0) {
+                    strength[ballRow][(ballCol + 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol + 1)] -= 1;
+                    
+                   if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
                     ballDown = false;
                 }
                 else if (ballDown == true && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
                     if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == false;
+                        ballRight = true;
+                        ballLeft = false;
+                        ballDown = false;
                     }
                     if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == false;
+                        ballLeft = true;
+                        ballRight = false;
+                        ballDown = false;
+                        }
+                        
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol + 1] > 0) {
+                    strength[(ballRow)][ballCol + 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol + 1)] -= 1;
+                    
+                   if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
+                    ballDown = false;
+                }
+                else if (ballDown == true && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                    if (ballRight == true) { //Ball is coming right-diagonally
+                        ballRight = true;
+                        ballLeft = false;
+                        ballDown = false;
+                    }
+                    if (ballLeft == true) { //Ball is coming left-diagonally
+                        ballLeft = true;
+                        ballRight = false;
+                        ballDown = false;
+                        }
+                        
+                    }
+                }
+            } 
         }
     }
-    
-    
-    else { //Level is 6 or higher -- block strength is randomized at this stage
-        if (ballRow == 1 || ballRow == 2 || ballRow == 3 || ballRow == 8 || ballRow == 9) { //Ball is hitting from the bottom
-            if ( (ballCol % 2) == 0){
-            if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
-            }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow + 1)][ballCol] > 0) {
-                strength[(ballRow + 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow + 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
-              }
-            }
-                if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
-                    ballDown = true;
-                }
-                else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
-                    if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == true;
+    else if (level >= 6) { //Level is 6 or higher -- block strength is randomized at this stage
+        if (ballCol == 1 || ballCol == 2 || ballCol == 3 || ballCol == 10 || ballCol == 11) { //Ball is hitting from the bottom
+            if ( (ballRow % 2) == 0) {
+                if (strength[ballRow][(ballCol - 1)] > 0) {
+                    strength[ballRow][(ballCol - 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
                     }
-                    if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == true;
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol - 1] > 0) {
+                    strength[(ballRow)][ballCol - 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol - 1)] -= 1;
+                    
+                    if (ballDown == false && ballRight == false && ballLeft == false) { //Ball is coming straight up
+                        ballDown = true;
+                    }
+                    else if (ballDown == false && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                        if (ballLeft == true) { //Ball is coming left-diagonally
+                            ballLeft = true;
+                            ballRight = false;
+                            ballDown = true;
+                        }
+                        else if (ballRight = true) { //Ball is coming right-diagonally
+                            ballRight = true;
+                            ballLeft = false;
+                            ballDown = true;
+                        }
+                        
+                    }
+                }
+            }
+            
         }
-        else if (ballRow == 8 || ballRow == 9) { //Ball is hitting from the top -- on the lower-tiered blocks
-            if ( (ballCol % 2) == 0){ 
-            if (strength[(ballRow - 1)][ballCol] > 0) {
-                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow - 1)][(ballCol + 1)] = strength[(ballRow + 1)][(ballCol + 1)] - 1;
-            }
-            else if ( (ballCol % 2) == 1){
-              if (strength[(ballRow - 1)][ballCol] > 0) {
-                strength[(ballRow - 1)][ballCol] = strength[(ballRow + 1)][ballCol] - 1;
-                strength[(ballRow - 1)][(ballCol - 1)] = strength[(ballRow + 1)][(ballCol-1)] - 1;
-              }
-            }
-                if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
+        else if (ballCol == 8 || ballCol == 9 || ballCol == 0 || ballCol == 1 || ballCol == 2) { //Ball is hitting from the top -- on the lower-tiered blocks
+            if ( (ballRow % 2) == 0) {
+                
+                if (strength[ballRow][(ballCol + 1)] > 0) {
+                    strength[ballRow][(ballCol + 1)] -= 1;
+                    strength[(ballRow + 1)][(ballCol + 1)] -= 1;
+                    
+                    if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
                     ballDown = false;
                 }
                 else if (ballDown == true && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
                     if (ballRight == true) { //Ball is coming right-diagonally
-                        ballRight == true;
-                        ballLeft == false;
-                        ballDown == false;
+                        ballRight = true;
+                        ballLeft = false;
+                        ballDown = false;
                     }
                     if (ballLeft == true) { //Ball is coming left-diagonally
-                        ballLeft == true;
-                        ballRight == false;
-                        ballDown == false;
+                        ballLeft = true;
+                        ballRight = false;
+                        ballDown = false;
+                        }
                     }
                 }
             }
+            else if ( (ballRow % 2) == 1) {
+                if (strength[(ballRow)][ballCol + 1] > 0) {
+                    strength[(ballRow)][ballCol + 1] -= 1;
+                    strength[(ballRow - 1)][(ballCol + 1)] -= 1;
+                    
+                    if (ballDown == true && ballRight == false && ballLeft == false) { //Ball is coming straight down
+                    ballDown = false;
+                }
+                else if (ballDown == true && (ballRight == true || ballLeft == true)) { //Ball is coming at an angle
+                    if (ballRight == true) { //Ball is coming right-diagonally
+                        ballRight = true;
+                        ballLeft = false;
+                        ballDown = false;
+                    }
+                    if (ballLeft == true) { //Ball is coming left-diagonally
+                        ballLeft = true;
+                        ballRight = false;
+                        ballDown = false;
+                        }  
+                    }
+                }
+            }
+            
         }
     }
 }
@@ -1191,7 +1467,7 @@ void Board::hitBlock() {
 boolean Board::levelComplete() {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 16; j++) {
-            if (strength [i][j] > 0) { 
+            if (strength [i][j] > 0) {
                 return false;
             }
         }
@@ -1221,12 +1497,12 @@ void Board::initStrength() {
 
 void clearBoard() {
     for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 16; j++){
-        matrix.drawPixel(i, j, LED_OFF);
-      }
+        for (int j = 0; j < 16; j++){
+            matrix.drawPixel(i, j, LED_OFF);
+        }
     }
 }
-      
+
 
 //REQUIRES:  val is the value of the potentiometer
 
@@ -1234,32 +1510,32 @@ void clearBoard() {
 
 //EFFECTS: returns the column position of the left pixel of the paddle
 
-int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
-//    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0, potPin?
-//    delay(1);
+int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 0s
+    //    int sensorValue = analogRead(A0); // Use pin for the potentiometer pin, not A0, potPin?
+    //    delay(1);
     if (val >= 0 && val <= 150) {
-      return 0;
+        return 0;
     }
     if (val >= 151 && val <= 300) {
-      return 1;
+        return 1;
     }
     if (val >= 301 && val <= 450) {
-      return 2;
+        return 2;
     }
     if (val >= 451 && val <= 600) {
-      return 3;
+        return 3;
     }
     if (val >= 601 && val <= 750) {
-      return 4;
+        return 4;
     }
     if (val >= 751 && val <= 900) {
-      return 5;
+        return 5;
     }
     if (val >= 901 && val <= 1024 ) {
-      return 6;
+        return 6;
     }
     
-    }
+}
 
 //EFFECTS:displays the number of lives remaining/level number on the board. If it doesn't all fit
 
@@ -1268,17 +1544,15 @@ int calculatePaddlePosition(int val) { // FINISH IMPLEMENTATION!! -- go by 150s
 //use text size 1 and delay of 50
 
 void printMessage(int number) {
-    matrix.setRotation(0); // could be 2, might have to get rid of or if we keep it, deset it 
-    if (number >= 10) { // if number is greater than 10 it has to scroll
-      matrix.setTextWrap(false); // makes it scoll marquee style
-      static_cast<char>(number);
-      matrix.drawChar(3, 6, number, 1, 0, 1);
-      delay(50);
-    }
-    else { // if number between 0-9
-    static_cast<char>(number);
-    matrix.drawChar(3, 6, number, 1, 0, 1);
-    delay(50);
+  matrix.setTextSize(1);
+  matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
+  matrix.setTextColor(LED_ON);
+  for (int8_t x=7; x>=-36; x--) {
+    matrix.clear();
+    matrix.setCursor(x,0);
+    matrix.print(number);
+    matrix.writeDisplay();
+    delay(100);
   }
 }
 
@@ -1289,11 +1563,17 @@ void printMessage(int number) {
 //use text size 1 and delay of 50
 
 void printMessage(String message) {
-    matrix.setRotation(0); // could be 2
-    matrix.setCursor(0, 6);
-    matrix.setTextColor(1);
-    matrix.setTextSize(1);
-    matrix.setTextWrap(false);
-    delay(50);
+  matrix.setTextSize(1);
+  matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
+  matrix.setTextColor(LED_ON);
+  for (int8_t x=7; x>=-36; x--) {
+    matrix.clear();
+    matrix.setCursor(x,0);
+    matrix.print(message);
+    matrix.writeDisplay();
+    delay(100);
+  }
 }
+
+
 
