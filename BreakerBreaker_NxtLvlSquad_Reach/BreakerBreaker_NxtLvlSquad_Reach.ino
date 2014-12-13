@@ -728,7 +728,7 @@ void Board::initBoard()
   }
   //Rows of descending strength 3 - 2 - 1, with gaps in between rows
   else if(level==5) {
-    for (int c=0; c<8; c++) {
+    for (int c=0; c<32; c++) {
       strength[c][0] = 3;
       strength[c][1] = 2;
       strength[c][2] = 1;
