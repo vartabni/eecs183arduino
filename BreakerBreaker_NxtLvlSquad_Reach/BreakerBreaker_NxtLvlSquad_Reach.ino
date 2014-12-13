@@ -260,8 +260,13 @@ void loop()
  
   //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
   // QUESTION (?) - How can we get the ball to speed up, but not the paddle? Though...
+<<<<<<< HEAD
   if (((board.getLevel() % 2) == 0) && (((board.getLevel() % 2) % 2) == 0)) { //if the current level number is divisible by 4
      board.setDelaySpeed(board.getDelaySpeed() - 50); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
+=======
+  if ((board.getLevel() % 2) == 0) { //if the current level number is divisible by 2
+     board.setDelaySpeed(board.getDelaySpeed() - 200); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
+>>>>>>> 9a327cb50613c9bc6656fbd929002fd4cd0ebf0d
      if (board.getDelaySpeed() < 100) { // if speed is too fast, sets back to 100 (lowest delaySpeed)
        board.setDelaySpeed(100); 
     }
@@ -330,6 +335,10 @@ void loop()
   // display all blocks to the display
   board.displayBlocks();
   //matrix.writeDisplay(); //display all changes made in one iteration of loop
+<<<<<<< HEAD
+=======
+  delay(board.getDelaySpeed());
+>>>>>>> 9a327cb50613c9bc6656fbd929002fd4cd0ebf0d
 
 
 }												// end of loop()
@@ -831,6 +840,5 @@ void printMessage(String message) {
   }
   return;
 }
-
 
 
