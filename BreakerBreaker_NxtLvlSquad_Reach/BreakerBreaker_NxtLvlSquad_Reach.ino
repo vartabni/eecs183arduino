@@ -38,7 +38,7 @@ public:
     paused = true;
     ballLeft = true;
   } 
-  int strength[8][16];	//The strengths of blocks remaining on the board
+  int strength[16][32];	//The strengths of blocks remaining on the board
 
   int getDelaySpeed(){
     return delaySpeed;
@@ -185,14 +185,6 @@ void printMessage(String message);
 // Matrix class instance to display all game objects to 16x32 LED Adafruit matrix
 RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, true);
 
-// Definitions for each pin used in the 16x32 matrix
-#define CLK 8  // MUST be on PORTB! (Need to move speaker from digital 8 to make room!)
-#define LAT A3
-#define OE  9
-#define A   A0
-#define B   A1
-#define C   A2
-
 // struct to hold all relevant IO pin data
 struct Pins{
 
@@ -260,13 +252,8 @@ void loop()
  
   //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
   // QUESTION (?) - How can we get the ball to speed up, but not the paddle? Though...
-<<<<<<< HEAD
-  if (((board.getLevel() % 2) == 0) && (((board.getLevel() % 2) % 2) == 0)) { //if the current level number is divisible by 4
-     board.setDelaySpeed(board.getDelaySpeed() - 50); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
-=======
   if ((board.getLevel() % 2) == 0) { //if the current level number is divisible by 2
      board.setDelaySpeed(board.getDelaySpeed() - 200); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
->>>>>>> 9a327cb50613c9bc6656fbd929002fd4cd0ebf0d
      if (board.getDelaySpeed() < 100) { // if speed is too fast, sets back to 100 (lowest delaySpeed)
        board.setDelaySpeed(100); 
     }
@@ -335,10 +322,7 @@ void loop()
   // display all blocks to the display
   board.displayBlocks();
   //matrix.writeDisplay(); //display all changes made in one iteration of loop
-<<<<<<< HEAD
-=======
   delay(board.getDelaySpeed());
->>>>>>> 9a327cb50613c9bc6656fbd929002fd4cd0ebf0d
 
 
 }												// end of loop()
@@ -349,10 +333,10 @@ void clearBoard(  )
       matrix.fillScreen(matrix.Color333(0, 0, 0)); // Fills entire matrix with "black"
 }												// end of clearBoard()
 
-void initStrength(int strength[][16])
+void initStrength(int strength[][32])
 {
   for (int r = 0; r < 16; r++) {		//Set strengths of all blocks to 0
-    for(int c = 0; c < 8; c++) {
+    for(int c = 0; c < 32; c++) {
       board.strength[c][r]=0;
     }
   }
@@ -363,7 +347,7 @@ boolean Board::hitBlock()
 {
   if(ballRight){
     if(ballDown){
-      if(ballRow+1<16 && ballCol+1<8 && strength[ballCol+1][ballRow+1]>0){
+      if(ballRow+1<16 && ballCol+1<32 && strength[ballCol+1][ballRow+1]>0){
         strength[ballCol+1][ballRow+1]--;
         if( ((ballCol+1) % 2) == 0) {
           strength[ballCol+2][ballRow+1]--;
@@ -379,7 +363,7 @@ boolean Board::hitBlock()
       }
     }
     else{
-      if(ballRow-1 >=0 && ballCol+1<8 && strength[ballCol+1][ballRow-1]>0){
+      if(ballRow-1 >=0 && ballCol+1<32 && strength[ballCol+1][ballRow-1]>0){
         strength[ballCol+1][ballRow-1]--;
         if( ((ballCol+1) % 2) == 0) {
           strength[ballCol+2][ballRow-1]--;
@@ -612,7 +596,7 @@ boolean Board::hitWall()
     ballLeft = false;
     Serial.println("hit wall");
   }
-  if( ballCol == 7 && ballRight )
+  if( ballCol == 31 && ballRight )
   {
     ballRight = false;
     ballLeft = true;
@@ -627,7 +611,7 @@ boolean Board::hitWall()
 boolean Board::lostBall(  ) 
 {
 
-  if( ballRow >= 15 || ballCol < 0 || ballCol > 7) {
+  if( ballRow >= 15 || ballCol < 0 || ballCol > 31) {
     return true; 
   }
   return false;
@@ -639,34 +623,70 @@ boolean Board::lostBall(  )
 //MODIFIES: none
 int calculatePaddlePosition( int val )
 {
-  //Since the paddle is two pixels wide, there are 7 possibilities for the leftmost pixel
-  if (val >= 0 && val < 146)
+  //Since the paddle is two pixels wide, there are 16 possibilities for the leftmost pixel
+  if (val >= 0 && val < 64)
   {
     return 0;
   }
-  else if (val >= 146 && val < 292)
+  else if (val >= 64 && val < 128)
   {
     return 1;
   }
-  else if (val >= 292 && val < 438)
+  else if (val >= 128 && val < 192)
   {
     return 2;
   }
-  else if (val >= 438 && val < 584)
+  else if (val >= 192 && val < 256)
   {
     return 3;
   }
-  else if (val >= 584 && val < 730)
+  else if (val >= 256 && val < 320)
   {
     return 4;
   }
-  else if (val >= 730 && val < 876)
+  else if (val >= 320 && val < 384)
   {
     return 5;
   }
-  else
+  else if (val >= 384 && val < 448)
   {
     return 6;
+  }
+  else if (val >= 448 && val < 512)
+  {
+    return 7;
+  }
+  else if (val >= 512 && val < 576)
+  {
+    return 8;
+  }
+  else if (val >= 576 && val < 640)
+  {
+    return 9;
+  }
+  else if (val >= 640 && val < 704)
+  {
+    return 10;
+  }
+  else if (val >= 704 && val < 768)
+  {
+    return 11;
+  }
+  else if (val >= 768 && val < 832)
+  {
+    return 12;
+  }
+  else if (val >= 832 && val < 896)
+  {
+    return 13;
+  }
+  else if (val >= 896 && val < 960)
+  {
+    return 14;
+  }
+  else
+  {
+    return 15;
   }
 }
 
@@ -682,25 +702,25 @@ void Board::initBoard()
   ballLeft = true;
 
   if(level==1) {
-    for(int c=0; c<8; c++) {
+    for(int c=0; c<32; c++) {
       strength[c][0]=1;
     }
   }
   else if(level==2) {
     for(int r=0; r<2; r++) {
-      for(int c=0; c<8; c++) {
+      for(int c=0; c<32; c++) {
         strength[c][r]=1;
       }
     }
   }
   else if(level==3) {
-    for(int c=0; c<8; c++) {
+    for(int c=0; c<32; c++) {
       strength[c][0] = 2;
       strength[c][1] = 1;
     }	
   }
   else if(level==4) {
-    for(int c=0; c<8;c++) {
+    for(int c=0; c<32;c++) {
       strength[c][0] = 3;
       strength[c][1] = 2;
       strength[c][2] = 1;
@@ -720,7 +740,7 @@ void Board::initBoard()
   {
     for (int r=0; r<=3; r++)
     {
-      for(int c=0; c<8; c+=2)
+      for(int c=0; c<32; c+=2)
       {
         strength[c][r]=( (rand() % 4) + 1);
         strength[c+1][r]=strength[c][r];
@@ -728,7 +748,7 @@ void Board::initBoard()
     }
     for (int r=9; r<=10; r++)
     {
-      for(int c=0; c<8; c+=2)
+      for(int c=0; c<32; c+=2)
       {
         strength[c][r]=( (rand() % 3) + 1);
         strength[c+1][r]=strength[c][r];
@@ -741,7 +761,7 @@ void Board::initBoard()
 void Board::displayBlocks(  )
 {
   for(int i = 0; i < 15; i++) {
-    for(int j = 0; j < 8; j++ ) {
+    for(int j = 0; j < 32; j++ ) {
       if( strength[j][i] > 0 ) {
         matrix.drawPixel(j, i, matrix.Color333(0, 0, 7));
       }
@@ -782,8 +802,8 @@ void Board::updateBall()
   if(ballCol < 0) {
     ballCol = 0;
   }
-  else if(ballCol > 7) {
-    ballCol = 7;
+  else if(ballCol > 31) {
+    ballCol = 31;
   }
   if(ballRow < 0) {
     ballRow = 0;
@@ -796,7 +816,7 @@ void Board::updateBall()
 
 boolean Board::levelComplete(){
   for (int r=0; r<16; r++){
-    for(int c=0; c<8; c++){
+    for(int c=0; c<32; c++){
       if(!(strength[c][r]<=0)){
         return false;
       }
