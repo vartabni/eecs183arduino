@@ -16,7 +16,7 @@ Extension List (Planned):
   
   - Addition of a sountrack/music - 2 points
   
-  - Increasing the speed of the game/ball(s) and the ability to pause the game at any time - 1 point
+  - The ability to pause the game at any time - 1 point
   
   - Adding images for level completion / display aesthetic - 1 point
   
@@ -27,4 +27,6 @@ Extension List (Planned):
 Extension List (Completed):
 
   - A Speaker and sounds/tones – 1 point
+  
+  - Increasing the speed of the game/ball(s) 
 
