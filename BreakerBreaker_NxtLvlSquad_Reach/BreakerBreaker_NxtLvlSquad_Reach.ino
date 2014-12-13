@@ -11,6 +11,14 @@
 #include "stdlib.h"
 #include "math.h"
 
+// Definitions for each pin used in the 16x32 matrix
+#define CLK 8  // MUST be on PORTB! (Need to move speaker from digital 8 to make room!)
+#define LAT A3
+#define OE  9
+#define A   A0
+#define B   A1
+#define C   A2
+
 /* IMPORTANT NOTE ABOUT CHANGE-OF-PINS!!!
   - 16x32 matrix has to have digital pins 2 through 7, with the clock pin as digital 8
     - This is important because right now we have the speaker using digital 8
@@ -22,6 +30,7 @@ class Board		//Contains necessary values to keep track of the game
 {
 public:
   Board(){
+    delaySpeed = 250;
     paddlePos = 0;
     lives = 3;
     level = 0;
@@ -31,6 +40,13 @@ public:
   } 
   int strength[8][16];	//The strengths of blocks remaining on the board
 
+  int getDelaySpeed(){
+    return delaySpeed;
+  }
+  void setDelaySpeed(int input){
+    delaySpeed = input;
+  }
+  
   int getPaddlePos(){
     return paddlePos;
   }
@@ -101,6 +117,8 @@ public:
     return paused;
   }
 
+
+
   //MODIFIES: strength array, ballRow, ballCol, BallRight, ballDown
   //EFFECTS: first sets up the ball so that it is on top of the paddle
   // on the left pixel with initial direction to the left and up. Next
@@ -140,6 +158,7 @@ public:
   boolean hitBlock();
 
 private:
+  int delaySpeed; //Speed of the ball/paddle
   int paddlePos;		//Leftmost position of the paddle
   int paddleHeight;	// height of the upper paddle
   int lives;			//Number of lives left
@@ -194,7 +213,7 @@ void setup()
   pins.val=0;
   pins.button=7; 
   pinMode(pins.button, INPUT);				//Sets the buttons pin to be an input pin
-  matrix.begin(0x70);  				// pass in the address
+  //matrix.begin(0x70);  				// pass in the address
   clearBoard();			//Set entire board to 'off'
   initStrength(board.strength);                    //set all strengths to 0	
 
@@ -228,7 +247,7 @@ void loop()
   Serial.print(pins.val);
 
   // draw the lower paddle on the board
-  matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(0, 0, 7)); // matrix.Color333(0,0,7) creates a blue LED light
+  matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(0, 0, 7)); // matrix.Color333(0,0,7) creates a BLUE LED light
   matrix.drawPixel( board.getPaddlePos() + 1, 15, matrix.Color333(0, 0, 7));  //Turns on the LEDs indicating the paddle
 
   // draw the upper paddle on the board
@@ -238,6 +257,18 @@ void loop()
   // check for a board with no blocks (strength for all pixels == 0)
   if(board.levelComplete()){     //checks if the level is done
     board.setLevel(board.getLevel()+1);			// increment the board level
+ 
+  //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
+  // QUESTION (?) - How can we get the ball to speed up, but not the paddle? Though...
+  if (((board.getLevel() % 2) == 0) && (((board.getLevel() % 2) % 2) == 0)) { //if the current level number is divisible by 4
+     board.setDelaySpeed(board.getDelaySpeed() - 50); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
+     if (board.getDelaySpeed() < 100) { // if speed is too fast, sets back to 100 (lowest delaySpeed)
+       board.setDelaySpeed(100); 
+    }
+    }
+    delay(board.getDelaySpeed()); // sets the decided speed to DelaySpeed before the next level starts
+
+    
     board.initBoard();							// initialize the state of the board for the new level
 
     printMessage("Level ");
@@ -298,15 +329,15 @@ void loop()
 
   // display all blocks to the display
   board.displayBlocks();
-  matrix.writeDisplay(); //display all changes made in one iteration of loop
-  delay(150); //to slow it down and make it easier to debug. also makes the paddle lag       
+  //matrix.writeDisplay(); //display all changes made in one iteration of loop
+
 
 }												// end of loop()
 
 
 void clearBoard(  )
 {
-      matrix.fill(matrix.Color333(0, 0, 0)); // Fills entire matrix with "black"
+      matrix.fillScreen(matrix.Color333(0, 0, 0)); // Fills entire matrix with "black"
 }												// end of clearBoard()
 
 void initStrength(int strength[][16])
@@ -778,10 +809,10 @@ void printMessage(int number) {
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
   matrix.setTextColor(matrix.Color333(0, 0, 7));
   for (int8_t x=7; x>=-36; x--) {
-    matrix.clear();
+    matrix.fillScreen(matrix.Color333(0, 0, 0));
     matrix.setCursor(x,0);
     matrix.print(number);
-    matrix.writeDisplay();
+    //matrix.writeDisplay();
     delay(50);
   }
   return;
@@ -792,10 +823,10 @@ void printMessage(String message) {
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
   matrix.setTextColor(matrix.Color333(0, 0, 7));
   for (int8_t x=7; x>=-36; x--) {
-    matrix.clear();
+    matrix.fillScreen(matrix.Color333(0, 0, 0));
     matrix.setCursor(x,0);
     matrix.print(message);
-    matrix.writeDisplay();
+    //matrix.writeDisplay();
     delay(50);
   }
   return;
