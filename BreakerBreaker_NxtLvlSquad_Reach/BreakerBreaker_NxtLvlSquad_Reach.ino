@@ -35,47 +35,47 @@ public:
     paused = true;
     ballLeft = true;
   } 
-  int strength[1][1];	//The strengths of blocks remaining on the board
+  byte strength[1][32];	//The strengths of blocks remaining on the board
 
-  int getDelaySpeed(){
+  byte getDelaySpeed(){
     return delaySpeed;
   }
-  void setDelaySpeed(int input){
+  void setDelaySpeed(byte input){
     delaySpeed = input;
   }
   
-  int getPaddlePos(){
+  byte getPaddlePos(){
     return paddlePos;
   }
-  void setPaddlePos(int input){
+  void setPaddlePos(byte input){
     paddlePos = input;
   }
 
-  int getLives(){
+  byte getLives(){
     return lives;
   }
-  void setLives(int input){
+  void setLives(byte input){
     lives = input;
   }
 
-  int getLevel(){
+  byte getLevel(){
     return level;
   }
-  void setLevel(int input){
+  void setLevel(byte input){
     level = input;
   }
 
-  int getBallRow(){
+  byte getBallRow(){
     return ballRow;
   }
-  void setBallRow(int input){
+  void setBallRow(byte input){
     ballRow = input;
   }
 
-  int getBallCol(){
+  byte getBallCol(){
     return ballCol;
   }
-  void setBallCol(int input){
+  void setBallCol(byte input){
     ballCol = input;
   }
 
@@ -100,7 +100,7 @@ public:
     ballDown = input;
   }
 
-  int getPaddleHeight() {
+  byte getPaddleHeight() {
     return paddleHeight;
   }
 
@@ -155,13 +155,13 @@ public:
   boolean hitBlock();
 
 private:
-  int delaySpeed; //Speed of the ball/paddle
-  int paddlePos;		//Leftmost position of the paddle
-  int paddleHeight;	// height of the upper paddle
-  int lives;			//Number of lives left
-  int level;			//Current level
-  int ballRow;			//Row of the ball
-  int ballCol;			//Column of the ball
+  byte delaySpeed; //Speed of the ball/paddle
+  byte paddlePos;		//Leftmost position of the paddle
+  byte paddleHeight;	// height of the upper paddle
+  byte lives;			//Number of lives left
+  byte level;			//Current level
+  byte ballRow;			//Row of the ball
+  byte ballCol;			//Column of the ball
   boolean ballLeft;		//If ballleft == TRUE, ball is moving left
   boolean ballRight;		//If ballRight == TRUE, ball is moving right.  
   boolean ballDown;		//If ballDown == TRUE, ball is moving down.  Otherwise, ball is moving up
@@ -172,7 +172,7 @@ private:
 //EFFECTS:displays the number of lives remaining/level number on the board. If it doesn't all fit
 //on the board at once, the text scrolls.
 //use text size 1 and delay of 50
-void printMessage(int number);
+void printMessage(byte number);
 
 //EFFECTS:displays string text needed(suchs as "LIVES" or "LEVEL") on the board. If it
 //doesn't all fit on the board at once, the text scrolls.
@@ -187,8 +187,8 @@ struct Pins{
 
   int potPin; 	        //input pin potentiometer
   int val;		//value of the potentiometer
-  int button;		//input pin for the button
-  int buttonState; // current state of the button
+  byte button;		//input pin for the button
+  byte buttonState; // current state of the button
 };
 
 Board board;				// declare playing field
@@ -198,16 +198,14 @@ Pins pins;					// pins to be used for game input
 void setup()
 {
   Serial.begin(9600);
-  matrix.begin();
+  matrix.begin( );
   //uint8_t r=0, g=0, b=0;
   pins.potPin= A4;
   pins.val=0;
   pins.button= 10; // Button pin is either 10 or 11
   pinMode(pins.button, INPUT);				//Sets the buttons pin to be an input pin
-  //matrix.begin(0x70);  				// pass in the address
   clearBoard();			//Set entire board to 'off'
-  //initStrength(board.strength);                    //set all strengths to 0	
-
+  initStrength(board.strength);                    //set all strengths to 0	
   printMessage(board.getLives());
   printMessage(" lives");  
 }
@@ -215,8 +213,8 @@ void setup()
 
 void loop()
 {
-  Serial.print("pot val = "); // debugging statements
-  Serial.println(pins.val);
+//  Serial.print("pot val = "); // debugging statements
+//  Serial.println(pins.val);
 
   // set all pixels on the game board to Color333(0, 0, 0) == Black
   clearBoard();
@@ -234,8 +232,8 @@ void loop()
 
   // update the position of the paddle based on the input range
   board.setPaddlePos(calculatePaddlePosition(pins.val));
-  Serial.print("pot val = ");
-  Serial.print(pins.val);
+//  Serial.print("pot val = ");
+//  Serial.print(pins.val);
 
   // draw the lower paddle on the board
   matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(0, 0, 7)); // matrix.Color333(0,0,7) creates a BLUE LED light
@@ -248,18 +246,19 @@ void loop()
   // check for a board with no blocks (strength for all pixels == 0)
   if(board.levelComplete()){     //checks if the level is done
     board.setLevel(board.getLevel()+1);			// increment the board level
- 
+    Serial.print("@@@@@@@@");
   //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
-  if ((board.getLevel() % 2) == 0) { //if the current level number is divisible by 2
-     board.setDelaySpeed(board.getDelaySpeed() - 200); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
-     if (board.getDelaySpeed() < 100) { // if speed is too fast, sets back to 100 (lowest delaySpeed)
-       board.setDelaySpeed(100); 
-    }
-    }
+//  if ((board.getLevel() % 2) == 0) { //if the current level number is divisible by 2
+//     board.setDelaySpeed(board.getDelaySpeed() - 200); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
+//     if (board.getDelaySpeed() < 100) { // if speed is too fast, sets back to 100 (lowest delaySpeed)
+//       board.setDelaySpeed(100); 
+//    }
+//    }
     delay(board.getDelaySpeed()); // sets the decided speed to DelaySpeed before the next level starts
 
     
-    board.initBoard();							// initialize the state of the board for the new level
+    board.initBoard();
+    							// initialize the state of the board for the new level
 
     printMessage("Level ");
     printMessage(board.getLevel());
@@ -270,14 +269,14 @@ void loop()
 
   // detect collisions with objects
   board.hitWall();
-  //board.hitBlock();
+  board.hitBlock();
   board.hitPaddle();
 
   // detect collisions with objects - AGAIN
   // this is done to make sure the ball detects another collision after
   // striking a different object and changing direction without changing position yet
   board.hitWall();
-  //board.hitBlock();
+  board.hitBlock();
   board.hitPaddle();
 
   // detect if the ball has left the palying field (has hit the bottom of the playing field
@@ -312,14 +311,15 @@ void loop()
   else 
   {
     board.setBallCol(board.getPaddlePos());
+    board.setBallRow(14);
   }
 
   // draw the ball on the screen
   matrix.drawPixel(board.getBallCol(), board.getBallRow(), matrix.Color333(0, 0, 7));
 
   // display all blocks to the display
-  //board.displayBlocks();
-  //matrix.writeDisplay(); //display all changes made in one iteration of loop
+  board.displayBlocks();
+  
   delay(board.getDelaySpeed());
 
 
@@ -339,11 +339,12 @@ void clearBoard(  )
       matrix.fillScreen(matrix.Color333(0, 0, 0)); // Fills entire matrix with "black"
 }												// end of clearBoard()
 
-void initStrength(int strength[][32])
+void initStrength(byte strength[][32])
 {
-  for (int r = 0; r < 16; r++) {		//Set strengths of all blocks to 0
-    for(int c = 0; c < 32; c++) {
-      board.strength[c][r]=0;
+  for (byte r = 0; r < 1; r++) {		//Set strengths of all blocks to 0
+    for(byte c = 0; c < 31; c++) {
+      board.strength[c][r]=13;
+     Serial.print("+++++++++++++++");
     }
   }
 }												// end of initStrength
@@ -353,7 +354,7 @@ boolean Board::hitBlock()
 {
   if(ballRight){
     if(ballDown){
-      if(ballRow+1<16 && ballCol+1<32 && strength[ballCol+1][ballRow+1]>0){
+      if(ballRow+1<1 && ballCol+1<32 && strength[ballCol+1][ballRow+1]>0){
         strength[ballCol+1][ballRow+1]--;
                 tone(11, 1000, 8);
         if( ((ballCol+1) % 2) == 0) {
@@ -394,7 +395,7 @@ boolean Board::hitBlock()
   }
   else if(ballLeft) {
     if(ballDown){
-      if((ballRow+1<16) && (ballCol-1>=0) && (strength[ballCol-1][ballRow+1]>0)){
+      if((ballRow+1<1) && (ballCol-1>=0) && (strength[ballCol-1][ballRow+1]>0)){
         //Serial.print( strength[ballCol-1][ballRow+1]);
         Serial.println(" block strength2");
         strength[ballCol-1][ballRow+1]--;
@@ -664,7 +665,7 @@ boolean Board::lostBall(  )
 //REQUIRES:  val is the value of the potentiometer
 //EFFECTS: returns the column position of the left pixel of the paddle
 //MODIFIES: none
-int calculatePaddlePosition( int val )
+byte calculatePaddlePosition( int val )
 {
   //Since the paddle is two pixels wide, there are 16 possibilities for the leftmost pixel
   if (val >= 0 && val < 64)
@@ -673,68 +674,68 @@ int calculatePaddlePosition( int val )
   }
   else if (val >= 64 && val < 128)
   {
-    return 1;
+    return 2;
   }
   else if (val >= 128 && val < 192)
   {
-    return 2;
+    return 4;
   }
   else if (val >= 192 && val < 256)
   {
-    return 3;
+    return 6;
   }
   else if (val >= 256 && val < 320)
   {
-    return 4;
+    return 8;
   }
   else if (val >= 320 && val < 384)
   {
-    return 5;
+    return 10;
   }
   else if (val >= 384 && val < 448)
   {
-    return 6;
+    return 12;
   }
   else if (val >= 448 && val < 512)
   {
-    return 7;
+    return 14;
   }
   else if (val >= 512 && val < 576)
   {
-    return 8;
+    return 16;
   }
   else if (val >= 576 && val < 640)
   {
-    return 9;
+    return 18;
   }
   else if (val >= 640 && val < 704)
   {
-    return 10;
+    return 20;
   }
   else if (val >= 704 && val < 768)
   {
-    return 11;
+    return 22;
   }
   else if (val >= 768 && val < 832)
   {
-    return 12;
+    return 24;
   }
   else if (val >= 832 && val < 896)
   {
-    return 13;
+    return 26;
   }
   else if (val >= 896 && val < 960)
   {
-    return 14;
+    return 28;
   }
   else
   {
-    return 15;
+    return 30;
   }
 }
 
 
-//MODIFIES:	modifies the array of ints holding the strength values left in the blocks to be displayed
+//MODIFIES:	modifies the array of bytes holding the strength values left in the blocks to be displayed
 //EFEFCTS:	set the strength array to hold the new values for the blocks for a new level based on the next level
 void Board::initBoard()
 {          
@@ -745,68 +746,70 @@ void Board::initBoard()
   ballLeft = true;
 
   if(level==1) {
-    for(int c=0; c<32; c++) {
+    for(byte c=0; c<32; c++) {
       strength[c][0]=1;
+      Serial.print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
     }
   }
-  else if(level==2) {
-    for(int r=0; r<2; r++) {
-      for(int c=0; c<32; c++) {
-        strength[c][r]=1;
-      }
-    }
-  }
-  else if(level==3) {
-    for(int c=0; c<32; c++) {
-      strength[c][0] = 2;
-      strength[c][1] = 1;
-    }	
-  }
-  else if(level==4) {
-    for(int c=0; c<32;c++) {
-      strength[c][0] = 3;
-      strength[c][1] = 2;
-      strength[c][2] = 1;
-    }
-  }
+//  else if(level==2) {
+//    for(byte r=0; r<2; r++) {
+//      for(byte c=0; c<32; c++) {
+//        strength[c][r]=1;
+//      }
+//    }
+//  }
+//  else if(level==3) {
+//    for(byte c=0; c<32; c++) {
+//      strength[c][0] = 2;
+//      strength[c][1] = 1;
+//    }	
+//  }
+//  else if(level==4) {
+//    for(byte c=0; c<32;c++) {
+//      strength[c][0] = 3;
+//      strength[c][1] = 2;
+//      strength[c][2] = 1;
+//    }
+//  }
   //Rows of descending strength 3 - 2 - 1, with gaps in between rows
-  else if(level==5) {
-    for (int c=0; c<32; c++) {
-      strength[c][0] = 3;
-      strength[c][1] = 2;
-      strength[c][2] = 1;
-      strength[c][9] = 1;
-      strength[c][10] = 1;
-    }
-  }
-  else
-  {
-    for (int r=0; r<=3; r++)
-    {
-      for(int c=0; c<32; c+=2)
-      {
-        strength[c][r]=( (rand() % 4) + 1);
-        strength[c+1][r]=strength[c][r];
-      }
-    }
-    for (int r=9; r<=10; r++)
-    {
-      for(int c=0; c<32; c+=2)
-      {
-        strength[c][r]=( (rand() % 3) + 1);
-        strength[c+1][r]=strength[c][r];
-      }
-    }
-  }
+//  else if(level==5) {
+//    for (byte c=0; c<32; c++) {
+//      strength[c][0] = 3;
+//      strength[c][1] = 2;
+//      strength[c][2] = 1;
+//      strength[c][9] = 1;
+//      strength[c][10] = 1;
+//    }
+//  }
+//  else
+//  {
+//    for (byte r=0; r<=3; r++)
+//    {
+//      for(byte c=0; c<32; c+=2)
+//      {
+//        strength[c][r]=( (rand() % 4) + 1);
+//        strength[c+1][r]=strength[c][r];
+//      }
+//    }
+//    for (byte r=9; r<=10; r++)
+//    {
+//      for(byte c=0; c<32; c+=2)
+//      {
+//        strength[c][r]=( (rand() % 3) + 1);
+//        strength[c+1][r]=strength[c][r];
+//      }
+//    }
+//  }
 
 }												// end if initBaord()
 
 void Board::displayBlocks(  )
 {
-  for(int i = 0; i < 15; i++) {
-    for(int j = 0; j < 32; j++ ) {
+  for(byte i = 0; i < 1; i++) {
+    for(byte j = 0; j < 32; j++ ) {
       if( strength[j][i] > 0 ) {
         matrix.drawPixel(j, i, matrix.Color333(0, 0, 7));
+        Serial.print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       }
     }
   }
@@ -858,8 +861,8 @@ void Board::updateBall()
 }
 
 boolean Board::levelComplete(){
-  for (int r=0; r<16; r++){
-    for(int c=0; c<32; c++){
+  for (byte r=0; r<1; r++){
+    for(byte c=0; c<32; c++){
       if(!(strength[c][r]<=0)){
         return false;
       }
@@ -876,15 +879,14 @@ void gameOver(){
   resetFunc();
 }
 
-void printMessage(int number) {
+void printMessage(byte number) {
   matrix.setTextSize(1);
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
   matrix.setTextColor(matrix.Color333(0, 0, 7));
-  for (int8_t x=7; x>=-36; x--) {
+  for (int8_t x=32; x>=-10; x--) {
     matrix.fillScreen(matrix.Color333(0, 0, 0));
-    matrix.setCursor(x,0);
+    matrix.setCursor(x,5);
     matrix.print(number);
-    //matrix.writeDisplay();
     delay(50);
   }
   return;
@@ -894,11 +896,10 @@ void printMessage(String message) {
   matrix.setTextSize(1);
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
   matrix.setTextColor(matrix.Color333(0, 0, 7));
-  for (int8_t x=7; x>=-36; x--) {
+  for (int8_t x=32; x>=-40; x--) {
     matrix.fillScreen(matrix.Color333(0, 0, 0));
-    matrix.setCursor(x,0);
+    matrix.setCursor(x,5);
     matrix.print(message);
-    //matrix.writeDisplay();
     delay(50);
   }
   return;
