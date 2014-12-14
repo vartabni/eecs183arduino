@@ -1,10 +1,7 @@
-
-
 //MircroArcade EECS 183 2014 Showcase
 //Breaker Breaker
 
 #include <Wire.h>
-#include "Adafruit_LEDBackpack.h"
 #include "Adafruit_GFX.h"
 #include "RGBmatrixPanel.h"
 #include "gamma.h"
@@ -38,7 +35,7 @@ public:
     paused = true;
     ballLeft = true;
   } 
-  int strength[16][32];	//The strengths of blocks remaining on the board
+  int strength[1][1];	//The strengths of blocks remaining on the board
 
   int getDelaySpeed(){
     return delaySpeed;
@@ -201,13 +198,15 @@ Pins pins;					// pins to be used for game input
 void setup()
 {
   Serial.begin(9600);
+  matrix.begin();
+  //uint8_t r=0, g=0, b=0;
   pins.potPin= A4;
   pins.val=0;
   pins.button= 10; // Button pin is either 10 or 11
   pinMode(pins.button, INPUT);				//Sets the buttons pin to be an input pin
   //matrix.begin(0x70);  				// pass in the address
   clearBoard();			//Set entire board to 'off'
-  initStrength(board.strength);                    //set all strengths to 0	
+  //initStrength(board.strength);                    //set all strengths to 0	
 
   printMessage(board.getLives());
   printMessage(" lives");  
@@ -251,7 +250,6 @@ void loop()
     board.setLevel(board.getLevel()+1);			// increment the board level
  
   //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
-  // QUESTION (?) - How can we get the ball to speed up, but not the paddle? Though...
   if ((board.getLevel() % 2) == 0) { //if the current level number is divisible by 2
      board.setDelaySpeed(board.getDelaySpeed() - 200); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
      if (board.getDelaySpeed() < 100) { // if speed is too fast, sets back to 100 (lowest delaySpeed)
@@ -272,14 +270,14 @@ void loop()
 
   // detect collisions with objects
   board.hitWall();
-  board.hitBlock();
+  //board.hitBlock();
   board.hitPaddle();
 
   // detect collisions with objects - AGAIN
   // this is done to make sure the ball detects another collision after
   // striking a different object and changing direction without changing position yet
   board.hitWall();
-  board.hitBlock();
+  //board.hitBlock();
   board.hitPaddle();
 
   // detect if the ball has left the palying field (has hit the bottom of the playing field
@@ -320,12 +318,20 @@ void loop()
   matrix.drawPixel(board.getBallCol(), board.getBallRow(), matrix.Color333(0, 0, 7));
 
   // display all blocks to the display
-  board.displayBlocks();
+  //board.displayBlocks();
   //matrix.writeDisplay(); //display all changes made in one iteration of loop
   delay(board.getDelaySpeed());
 
 
-}												// end of loop()
+}	
+
+
+
+
+
+
+
+											// end of loop()
 
 
 void clearBoard(  )
