@@ -183,7 +183,7 @@ void printMessage(int number);
 void printMessage(String message);
 
 // Matrix class instance to display all game objects to 16x32 LED Adafruit matrix
-RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, true);
+RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, false);
 
 // struct to hold all relevant IO pin data
 struct Pins{
@@ -201,9 +201,9 @@ Pins pins;					// pins to be used for game input
 void setup()
 {
   Serial.begin(9600);
-  pins.potPin=2;
+  pins.potPin= A4;
   pins.val=0;
-  pins.button=7; 
+  pins.button= 10; // Button pin is either 10 or 11
   pinMode(pins.button, INPUT);				//Sets the buttons pin to be an input pin
   //matrix.begin(0x70);  				// pass in the address
   clearBoard();			//Set entire board to 'off'
@@ -349,14 +349,14 @@ boolean Board::hitBlock()
     if(ballDown){
       if(ballRow+1<16 && ballCol+1<32 && strength[ballCol+1][ballRow+1]>0){
         strength[ballCol+1][ballRow+1]--;
-                tone(8, 1000, 8);
+                tone(11, 1000, 8);
         if( ((ballCol+1) % 2) == 0) {
           strength[ballCol+2][ballRow+1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         else {
           strength[ballCol][ballRow+1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         ballDown=!ballDown;
         ballRight= false;
@@ -368,14 +368,14 @@ boolean Board::hitBlock()
     else{
       if(ballRow-1 >=0 && ballCol+1<32 && strength[ballCol+1][ballRow-1]>0){
         strength[ballCol+1][ballRow-1]--;
-                tone(8, 1000, 8);
+                tone(11, 1000, 8);
         if( ((ballCol+1) % 2) == 0) {
           strength[ballCol+2][ballRow-1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         else {
           strength[ballCol][ballRow-1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
 
         ballDown=!ballDown;
@@ -392,14 +392,14 @@ boolean Board::hitBlock()
         //Serial.print( strength[ballCol-1][ballRow+1]);
         Serial.println(" block strength2");
         strength[ballCol-1][ballRow+1]--;
-                tone(8, 1000, 8);
+                tone(11, 1000, 8);
         if( ((ballCol-1) % 2) == 0) {
           strength[ballCol][ballRow+1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         else {
           strength[ballCol-2][ballRow+1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         ballDown=!ballDown;
         ballRight= true;
@@ -411,15 +411,15 @@ boolean Board::hitBlock()
     else{
       if(ballRow-1>=0 && ballCol-1>=0 && strength[ballCol-1][ballRow-1]>0){
         strength[ballCol-1][ballRow-1]--;
-                tone(8, 1000, 8);
+                tone(11, 1000, 8);
 
         if( ((ballCol-1) % 2) == 0) {
           strength[ballCol][ballRow-1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         else {
           strength[ballCol-2][ballRow-1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         ballDown=!ballDown;
         ballRight= true;
@@ -436,15 +436,15 @@ boolean Board::hitBlock()
         //Serial.print( strength[ballCol-1][ballRow+1]);
         Serial.println(" block strength2");
         strength[ballCol][ballRow+1]--;
-                tone(8, 1000, 8);
+                tone(11, 1000, 8);
 
         if( ((ballCol) % 2) == 0) {
           strength[ballCol+1][ballRow+1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         else {
           strength[ballCol-1][ballRow+1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
 
         ballDown=!ballDown;
@@ -455,14 +455,14 @@ boolean Board::hitBlock()
     else{
       if( strength[ballCol][ballRow-1] > 0 ) {
         strength[ballCol][ballRow-1]--;
-                tone(8, 1000, 8);
+                tone(11, 1000, 8);
         if( ((ballCol) % 2) == 0) {
           strength[ballCol+1][ballRow-1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         else {
           strength[ballCol-1][ballRow-1]--;
-                  tone(8, 1000, 8);
+                  tone(11, 1000, 8);
         }
         ballDown=!ballDown;
         // Serial.print( strength[ballRow-1][ballCol-1]);
@@ -485,7 +485,7 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = true;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
         Serial.println("hit paddle left");
       }
       else if( ballCol == paddlePos )
@@ -493,13 +493,13 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = false;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
       else if( ballCol == paddlePos +1)
       {
         ballDown = !ballDown;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
     }
@@ -510,7 +510,7 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = true;
         ballLeft = false;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
         Serial.println("hit paddle left");
       }
       else if( ballCol == paddlePos + 1 )
@@ -518,13 +518,13 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = false;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
       else if( ballCol == paddlePos )
       {
         ballDown = !ballDown;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
     }
@@ -534,13 +534,13 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = true;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
       }
       else if(  ballCol == paddlePos + 1 ) {
         ballDown = !ballDown;
         ballRight = true;
         ballLeft = false;
-                tone(8, 600, 8);
+                tone(11, 600, 8);
       }
 
     }
@@ -553,7 +553,7 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = true;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
         Serial.println("hit paddle left");
       }
       else if( ballCol == paddlePos )
@@ -561,13 +561,13 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = false;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
       else if( ballCol == paddlePos +1)
       {
         ballDown = !ballDown;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
     }
@@ -578,7 +578,7 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = true;
         ballLeft = false;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
         Serial.println("hit paddle left");
       }
       else if( ballCol == paddlePos + 1 )
@@ -586,13 +586,13 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = false;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
       else if( ballCol == paddlePos )
       {
         ballDown = !ballDown;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
         Serial.println("hit paddle right");
       }
     }
@@ -602,13 +602,13 @@ boolean Board::hitPaddle( )
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = true;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
       }
       else if(  ballCol == paddlePos + 1 ) {
         ballDown = !ballDown;
         ballRight = true;
         ballLeft = false;
-        tone(8, 600, 8);
+        tone(11, 600, 8);
       }
 
     }
@@ -621,20 +621,20 @@ boolean Board::hitWall()
 {
   if( ballRow == 0 && !ballDown ) 
   {
-      tone(8, 250, 8);
+      tone(11, 250, 8);
     ballDown = !ballDown;
     Serial.println("hit wall");
   }
   if( ballCol == 0 && ballLeft )
   {
-      tone(8, 250, 8);
+      tone(11, 250, 8);
     ballRight = true;
     ballLeft = false;
     Serial.println("hit wall");
   }
   if( ballCol == 31 && ballRight )
   {
-      tone(8, 250, 8);
+      tone(11, 250, 8);
     ballRight = false;
     ballLeft = true;
     Serial.println("hit wall");
