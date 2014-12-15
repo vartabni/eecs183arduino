@@ -30,12 +30,12 @@ public:
     delaySpeed = 250;
     paddlePos = 0;
     lives = 3;
-    level = 0;
+    level = 4;
     paddleHeight = 7;
     paused = true;
     ballLeft = true;
   } 
-  byte strength[1][32];	//The strengths of blocks remaining on the board
+  byte strength[32][16];	//The strengths of blocks remaining on the board
 
   byte getDelaySpeed(){
     return delaySpeed;
@@ -205,7 +205,7 @@ void setup()
   pins.button= 10; // Button pin is either 10 or 11
   pinMode(pins.button, INPUT);				//Sets the buttons pin to be an input pin
   clearBoard();			//Set entire board to 'off'
-  initStrength(board.strength);                    //set all strengths to 0	
+  initStrength();                    //set all strengths to 0	
   printMessage(board.getLives());
   printMessage(" lives");  
 }
@@ -213,8 +213,7 @@ void setup()
 
 void loop()
 {
-//  Serial.print("pot val = "); // debugging statements
-//  Serial.println(pins.val);
+
 
   // set all pixels on the game board to Color333(0, 0, 0) == Black
   clearBoard();
@@ -246,7 +245,7 @@ void loop()
   // check for a board with no blocks (strength for all pixels == 0)
   if(board.levelComplete()){     //checks if the level is done
     board.setLevel(board.getLevel()+1);			// increment the board level
-    Serial.print("@@@@@@@@");
+
   //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
 //  if ((board.getLevel() % 2) == 0) { //if the current level number is divisible by 2
 //     board.setDelaySpeed(board.getDelaySpeed() - 200); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
@@ -254,7 +253,7 @@ void loop()
 //       board.setDelaySpeed(100); 
 //    }
 //    }
-    delay(board.getDelaySpeed()); // sets the decided speed to DelaySpeed before the next level starts
+    //delay(board.getDelaySpeed()); // sets the decided speed to DelaySpeed before the next level starts
 
     
     board.initBoard();
@@ -320,7 +319,8 @@ void loop()
   // display all blocks to the display
   board.displayBlocks();
   
-  delay(board.getDelaySpeed());
+  //delay(board.getDelaySpeed());
+  delay(100);
 
 
 }	
@@ -336,15 +336,14 @@ void loop()
 
 void clearBoard(  )
 {
-      matrix.fillScreen(matrix.Color333(0, 0, 0)); // Fills entire matrix with "black"
+      matrix.fillScreen(0); // Fills entire matrix with "black"
 }												// end of clearBoard()
 
-void initStrength(byte strength[][32])
+void initStrength()
 {
   for (byte r = 0; r < 1; r++) {		//Set strengths of all blocks to 0
-    for(byte c = 0; c < 31; c++) {
-      board.strength[c][r]=13;
-     Serial.print("+++++++++++++++");
+    for(byte c = 0; c < 32; c++) {
+      board.strength[c][r]= 0;
     }
   }
 }												// end of initStrength
@@ -352,9 +351,11 @@ void initStrength(byte strength[][32])
 
 boolean Board::hitBlock()
 {
+  //if (ballRow == 1)
+  {
   if(ballRight){
     if(ballDown){
-      if(ballRow+1<1 && ballCol+1<32 && strength[ballCol+1][ballRow+1]>0){
+      if(ballRow+1<16 && ballCol+1<32 && strength[ballCol+1][ballRow+1]>0){
         strength[ballCol+1][ballRow+1]--;
                 tone(11, 1000, 8);
         if( ((ballCol+1) % 2) == 0) {
@@ -369,7 +370,7 @@ boolean Board::hitBlock()
         ballRight= false;
         ballLeft = true;
         //  Serial.print( strength[ballRow+1][ballCol+1]);
-        Serial.println(" block strength");
+        
       }
     }
     else{
@@ -389,15 +390,13 @@ boolean Board::hitBlock()
         ballRight= false;
         ballLeft = true;
         // Serial.print( strength[ballRow-1][ballCol+1]);
-        Serial.println(" block strength1");
+        
       }
     }
   }
   else if(ballLeft) {
     if(ballDown){
       if((ballRow+1<1) && (ballCol-1>=0) && (strength[ballCol-1][ballRow+1]>0)){
-        //Serial.print( strength[ballCol-1][ballRow+1]);
-        Serial.println(" block strength2");
         strength[ballCol-1][ballRow+1]--;
                 tone(11, 1000, 8);
         if( ((ballCol-1) % 2) == 0) {
@@ -411,8 +410,6 @@ boolean Board::hitBlock()
         ballDown=!ballDown;
         ballRight= true;
         ballLeft = false;
-        //Serial.print( strength[ballRow+1][ballCol-1]);
-        Serial.println(" block strength2");
       }
     }
     else{
@@ -431,8 +428,6 @@ boolean Board::hitBlock()
         ballDown=!ballDown;
         ballRight= true;
         ballLeft = false;
-        // Serial.print( strength[ballRow-1][ballCol-1]);
-        Serial.println(" block strength3");
       }
     }
   }
@@ -440,8 +435,7 @@ boolean Board::hitBlock()
   {
     if(ballDown){
       if( strength[ballCol][ballRow+1] > 0 ) {
-        //Serial.print( strength[ballCol-1][ballRow+1]);
-        Serial.println(" block strength2");
+
         strength[ballCol][ballRow+1]--;
                 tone(11, 1000, 8);
 
@@ -455,8 +449,7 @@ boolean Board::hitBlock()
         }
 
         ballDown=!ballDown;
-        //Serial.print( strength[ballRow+1][ballCol-1]);
-        Serial.println(" block strength2");
+
       }
     }
     else{
@@ -472,14 +465,14 @@ boolean Board::hitBlock()
                   tone(11, 1000, 8);
         }
         ballDown=!ballDown;
-        // Serial.print( strength[ballRow-1][ballCol-1]);
-        Serial.println(" block strength3");
+
       }														// end of if strength > 0								
 
     }														// end of else... !ballDown		
 
   }															// end of else... ! (ballRight || ballLeft) 
 
+}
 }															// end of hitBlock()
 
 boolean Board::hitPaddle( )
@@ -493,7 +486,6 @@ boolean Board::hitPaddle( )
         ballRight = false;
         ballLeft = true;
                 tone(11, 600, 8);
-        Serial.println("hit paddle left");
       }
       else if( ballCol == paddlePos )
       {
@@ -501,13 +493,11 @@ boolean Board::hitPaddle( )
         ballRight = false;
         ballLeft = false;
                 tone(11, 600, 8);
-        Serial.println("hit paddle right");
       }
       else if( ballCol == paddlePos +1)
       {
         ballDown = !ballDown;
                 tone(11, 600, 8);
-        Serial.println("hit paddle right");
       }
     }
     else if(ballLeft)
@@ -518,21 +508,19 @@ boolean Board::hitPaddle( )
         ballRight = true;
         ballLeft = false;
                 tone(11, 600, 8);
-        Serial.println("hit paddle left");
       }
       else if( ballCol == paddlePos + 1 )
       {
         ballDown = !ballDown;
         ballRight = false;
         ballLeft = false;
-                tone(11, 600, 8);
-        Serial.println("hit paddle right");
+
       }
       else if( ballCol == paddlePos )
       {
         ballDown = !ballDown;
                 tone(11, 600, 8);
-        Serial.println("hit paddle right");
+
       }
     }
     else
@@ -561,7 +549,7 @@ boolean Board::hitPaddle( )
         ballRight = false;
         ballLeft = true;
         tone(11, 600, 8);
-        Serial.println("hit paddle left");
+
       }
       else if( ballCol == paddlePos )
       {
@@ -569,13 +557,13 @@ boolean Board::hitPaddle( )
         ballRight = false;
         ballLeft = false;
         tone(11, 600, 8);
-        Serial.println("hit paddle right");
+
       }
       else if( ballCol == paddlePos +1)
       {
         ballDown = !ballDown;
         tone(11, 600, 8);
-        Serial.println("hit paddle right");
+
       }
     }
     else if(ballLeft)
@@ -586,7 +574,7 @@ boolean Board::hitPaddle( )
         ballRight = true;
         ballLeft = false;
         tone(11, 600, 8);
-        Serial.println("hit paddle left");
+
       }
       else if( ballCol == paddlePos + 1 )
       {
@@ -594,13 +582,12 @@ boolean Board::hitPaddle( )
         ballRight = false;
         ballLeft = false;
         tone(11, 600, 8);
-        Serial.println("hit paddle right");
+
       }
       else if( ballCol == paddlePos )
       {
         ballDown = !ballDown;
         tone(11, 600, 8);
-        Serial.println("hit paddle right");
       }
     }
     else
@@ -630,21 +617,21 @@ boolean Board::hitWall()
   {
       tone(11, 250, 8);
     ballDown = !ballDown;
-    Serial.println("hit wall");
+
   }
   if( ballCol == 0 && ballLeft )
   {
       tone(11, 250, 8);
     ballRight = true;
     ballLeft = false;
-    Serial.println("hit wall");
+
   }
   if( ballCol == 31 && ballRight )
   {
       tone(11, 250, 8);
     ballRight = false;
     ballLeft = true;
-    Serial.println("hit wall");
+
   }
 }													// end of hitWall()
 
@@ -748,39 +735,38 @@ void Board::initBoard()
   if(level==1) {
     for(byte c=0; c<32; c++) {
       strength[c][0]=1;
-      Serial.print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
     }
   }
-//  else if(level==2) {
-//    for(byte r=0; r<2; r++) {
-//      for(byte c=0; c<32; c++) {
-//        strength[c][r]=1;
-//      }
-//    }
-//  }
-//  else if(level==3) {
-//    for(byte c=0; c<32; c++) {
-//      strength[c][0] = 2;
-//      strength[c][1] = 1;
-//    }	
-//  }
-//  else if(level==4) {
-//    for(byte c=0; c<32;c++) {
-//      strength[c][0] = 3;
-//      strength[c][1] = 2;
-//      strength[c][2] = 1;
-//    }
-//  }
+  else if(level==2) {
+    for(byte r=0; r<2; r++) {
+      for(byte c=0; c<32; c++) {
+        strength[c][r]=1;
+      }
+    }
+  }
+  else if(level==3) {
+    for(byte c=0; c<32; c++) {
+      strength[c][0] = 2;
+      strength[c][1] = 1;
+    }	
+  }
+  else if(level==4) {
+    for(byte c=0; c<32;c++) {
+      strength[c][0] = 3;
+      strength[c][1] = 2;
+      strength[c][2] = 1;
+    }
+  }
   //Rows of descending strength 3 - 2 - 1, with gaps in between rows
-//  else if(level==5) {
-//    for (byte c=0; c<32; c++) {
-//      strength[c][0] = 3;
-//      strength[c][1] = 2;
-//      strength[c][2] = 1;
-//      strength[c][9] = 1;
-//      strength[c][10] = 1;
-//    }
-//  }
+  else if(level==5) {
+    for (byte c=0; c<32; c++) {
+      strength[c][0] = 3;
+      strength[c][1] = 2;
+      strength[c][2] = 1;
+      strength[c][9] = 1;
+      strength[c][10] = 1;
+    }
+  }
 //  else
 //  {
 //    for (byte r=0; r<=3; r++)
@@ -805,11 +791,10 @@ void Board::initBoard()
 
 void Board::displayBlocks(  )
 {
-  for(byte i = 0; i < 1; i++) {
+  for(byte i = 0; i < 16; i++) {
     for(byte j = 0; j < 32; j++ ) {
       if( strength[j][i] > 0 ) {
-        matrix.drawPixel(j, i, matrix.Color333(0, 0, 7));
-        Serial.print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        matrix.drawPixel(j, i, 31);
       }
     }
   }
@@ -896,7 +881,7 @@ void printMessage(String message) {
   matrix.setTextSize(1);
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
   matrix.setTextColor(matrix.Color333(0, 0, 7));
-  for (int8_t x=32; x>=-40; x--) {
+  for (int8_t x=32; x>=-47; x--) {
     matrix.fillScreen(matrix.Color333(0, 0, 0));
     matrix.setCursor(x,5);
     matrix.print(message);
