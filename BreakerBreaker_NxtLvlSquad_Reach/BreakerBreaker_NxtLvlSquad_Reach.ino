@@ -30,7 +30,7 @@ public:
     delaySpeed = 250;
     paddlePos = 0;
     lives = 3;
-    level = 0;
+    level = 4;
     paddleHeight = 7;
     paused = true;
     ballLeft = true;
@@ -207,7 +207,7 @@ void setup()
   clearBoard();			//Set entire board to 'off'
   initStrength();                    //set all strengths to 0	
   printMessage(board.getLives());
-  printMessage(" lives");  
+  //printMessage(" lives");  
 }
 
 
@@ -235,12 +235,12 @@ void loop()
 //  Serial.print(pins.val);
 
   // draw the lower paddle on the board
-  matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(0, 0, 7)); // matrix.Color333(0,0,7) creates a BLUE LED light
-  matrix.drawPixel( board.getPaddlePos() + 1, 15, matrix.Color333(0, 0, 7));  //Turns on the LEDs indicating the paddle
+  matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(0, 7, 1)); // matrix.Color333(0,0,7) creates a BLUE LED light
+  matrix.drawPixel( board.getPaddlePos() + 1, 15, matrix.Color333(0, 7, 1));  //Turns on the LEDs indicating the paddle
 
   // draw the upper paddle on the board
-  matrix.drawPixel( board.getPaddlePos(), board.getPaddleHeight(), matrix.Color333(0, 0, 7));
-  matrix.drawPixel( board.getPaddlePos() + 1, board.getPaddleHeight(), matrix.Color333(0, 0, 7));  //Turns on the LEDs indicating the paddle
+  matrix.drawPixel( board.getPaddlePos(), board.getPaddleHeight(), matrix.Color333(0, 7, 1));
+  matrix.drawPixel( board.getPaddlePos() + 1, board.getPaddleHeight(), matrix.Color333(0, 7, 1));  //Turns on the LEDs indicating the paddle
 
   // check for a board with no blocks (strength for all pixels == 0)
   if(board.levelComplete()){     //checks if the level is done
@@ -260,7 +260,7 @@ delay (150);
     board.initBoard();
     							// initialize the state of the board for the new level
 
-    printMessage("Level ");
+    //printMessage("Level ");
     printMessage(board.getLevel());
 
     // pause the game to start a new level
@@ -855,7 +855,43 @@ void Board::displayBlocks(  )
   for(byte i = 0; i < 16; i++) {
     for(byte j = 0; j < 32; j++ ) {
       if( strength[j][i] > 0 ) {
-        matrix.drawPixel(j, i, 31);
+        if (i == 0) {
+          if (j <= 7) {
+            matrix.drawPixel(j, i, matrix.Color333(7, 0, 0));
+          }
+          if (j <= 15 && j > 7 ) {
+            matrix.drawPixel(j, i, matrix.Color333(6, 1, 0));
+          }
+          if (j <= 23 && j > 15) {
+            matrix.drawPixel(j, i, matrix.Color333(5, 2, 0));
+          }
+          if (j <= 31 && j > 23) {
+            matrix.drawPixel(j, i, matrix.Color333(4, 3, 0));
+          }
+        }
+        if (i == 1) {
+          if (j <= 7) {
+            matrix.drawPixel(j, i, matrix.Color333(7, 0, 5));
+          }
+          if (j <= 15 && j > 7 ) {
+            matrix.drawPixel(j, i, matrix.Color333(6, 1, 0));
+          }
+          if (j <= 23 && j > 15) {
+            matrix.drawPixel(j, i, matrix.Color333(5, 2, 0));
+          }
+          if (j <= 31 && j > 23) {
+            matrix.drawPixel(j, i, matrix.Color333(4, 3, 0));
+          }
+        }
+        if (i == 2) {
+          matrix.drawPixel(j, i, matrix.Color333(2, 1, 7));
+        }
+        if (i == 9) {
+          matrix.drawPixel(j, i, matrix.Color333(0, 5, 7));
+        }
+        if (i == 10) {
+          matrix.drawPixel(j, i, matrix.Color333(2, 6, 2));
+        }
       }
     }
   }
