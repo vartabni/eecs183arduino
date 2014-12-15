@@ -246,16 +246,17 @@ void loop()
   if(board.levelComplete()){     //checks if the level is done
     board.setLevel(board.getLevel()+1);			// increment the board level
 
-  //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
+//  //***REACH ADDITION*** - Speeds up the ball/paddle by -50 every 4 levels
 //  if ((board.getLevel() % 2) == 0) { //if the current level number is divisible by 2
 //     board.setDelaySpeed(board.getDelaySpeed() - 200); // Subtracts 50 from the delaySpeed - makes the ball/paddle go faster
 //     if (board.getDelaySpeed() < 100) { // if speed is too fast, sets back to 100 (lowest delaySpeed)
 //       board.setDelaySpeed(100); 
 //    }
 //    }
-    //delay(board.getDelaySpeed()); // sets the decided speed to DelaySpeed before the next level starts
+//    delay(board.getDelaySpeed()); // sets the decided speed to DelaySpeed before the next level starts
 
-    
+delay (150);
+
     board.initBoard();
     							// initialize the state of the board for the new level
 
@@ -320,7 +321,7 @@ void loop()
   board.displayBlocks();
   
   //delay(board.getDelaySpeed());
-  delay(100);
+  delay(150);
 
 
 }	
@@ -927,7 +928,7 @@ void gameOver(){
 void printMessage(byte number) {
   matrix.setTextSize(1);
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
-  matrix.setTextColor(matrix.Color333(0, 0, 7));
+  matrix.setTextColor(matrix.Color333(1, 7, 2));
   for (int8_t x=32; x>=-10; x--) {
     matrix.fillScreen(matrix.Color333(0, 0, 0));
     matrix.setCursor(x,5);
