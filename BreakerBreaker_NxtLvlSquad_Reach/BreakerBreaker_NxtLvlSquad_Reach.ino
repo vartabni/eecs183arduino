@@ -30,7 +30,7 @@ public:
     delaySpeed = 250;
     paddlePos = 0;
     lives = 3;
-    level = 4;
+    level = 0;
     paddleHeight = 7;
     paused = true;
     ballLeft = true;
@@ -659,61 +659,121 @@ byte calculatePaddlePosition( int val )
   {
     return 0;
   }
-  else if (val >= 64 && val < 128)
+  else if (val >= 32 && val < 64)
+  {
+    return 1;
+  }
+  else if (val >= 64 && val < 98)
   {
     return 2;
   }
-  else if (val >= 128 && val < 192)
+  else if (val >= 98 && val < 128)
+  {
+    return 3;
+  }
+  else if (val >= 128 && val < 160)
   {
     return 4;
   }
-  else if (val >= 192 && val < 256)
+  else if (val >= 160 && val < 192)
+  {
+    return 5;
+  }
+  else if (val >= 192 && val < 224)
   {
     return 6;
   }
-  else if (val >= 256 && val < 320)
+  else if (val >= 224 && val < 256)
+  {
+    return 7;
+  }
+  else if (val >= 256 && val < 288)
   {
     return 8;
   }
-  else if (val >= 320 && val < 384)
+  else if (val >= 288 && val < 320)
+  {
+    return 9;
+  }
+  else if (val >= 320 && val < 352)
   {
     return 10;
   }
-  else if (val >= 384 && val < 448)
+  else if (val >= 352 && val < 384)
+  {
+    return 11;
+  }
+  else if (val >= 384 && val < 416)
   {
     return 12;
   }
-  else if (val >= 448 && val < 512)
+    else if (val >= 416 && val < 448)
+  {
+    return 13;
+  }
+  else if (val >= 448 && val < 480)
   {
     return 14;
   }
-  else if (val >= 512 && val < 576)
+  else if (val >= 480 && val < 512)
+  {
+    return 15;
+  }
+  else if (val >= 512 && val < 544)
   {
     return 16;
   }
-  else if (val >= 576 && val < 640)
+  else if (val >= 544 && val < 576)
+  {
+    return 17;
+  }
+  else if (val >= 576 && val < 608)
   {
     return 18;
   }
-  else if (val >= 640 && val < 704)
+  else if (val >= 608 && val < 640)
+  {
+    return 19;
+  }
+  else if (val >= 640 && val < 672)
   {
     return 20;
   }
-  else if (val >= 704 && val < 768)
+  else if (val >= 672 && val < 704)
+  {
+    return 21;
+  }
+  else if (val >= 704 && val < 736)
   {
     return 22;
   }
-  else if (val >= 768 && val < 832)
+  else if (val >= 736 && val < 768)
+  {
+    return 23;
+  }
+  else if (val >= 768 && val < 800)
   {
     return 24;
   }
-  else if (val >= 832 && val < 896)
+  else if (val >= 800 && val < 832)
+  {
+    return 25;
+  }
+  else if (val >= 832 && val < 864)
   {
     return 26;
   }
-  else if (val >= 896 && val < 960)
+  else if (val >= 864 && val < 896)
+  {
+    return 27;
+  }
+  else if (val >= 896 && val < 928)
   {
     return 28;
+  }
+  else if (val >= 928 && val < 960)
+  {
+    return 29;
   }
   else
   {
