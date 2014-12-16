@@ -831,25 +831,25 @@ void Board::initBoard()
       strength[c][10] = 1;
     }
   }
-//  else
-//  {
-//    for (byte r=0; r<=3; r++)
-//    {
-//      for(byte c=0; c<32; c+=2)
-//      {
-//        strength[c][r]=( (rand() % 4) + 1);
-//        strength[c+1][r]=strength[c][r];
-//      }
-//    }
-//    for (byte r=9; r<=10; r++)
-//    {
-//      for(byte c=0; c<32; c+=2)
-//      {
-//        strength[c][r]=( (rand() % 3) + 1);
-//        strength[c+1][r]=strength[c][r];
-//      }
-//    }
-//  }
+  else
+  {
+    for (byte r=0; r<=3; r++)
+    {
+      for(byte c=0; c<32; c+=2)
+      {
+        strength[c][r]=( (rand() % 4) + 1);
+        strength[c+1][r]=strength[c][r];
+      }
+    }
+    for (byte r=9; r<=10; r++)
+    {
+      for(byte c=0; c<32; c+=2)
+      {
+        strength[c][r]=( (rand() % 3) + 1);
+        strength[c+1][r]=strength[c][r];
+      }
+    }
+  }
 
 }												// end if initBaord()
 
