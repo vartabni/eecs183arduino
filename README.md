@@ -10,23 +10,10 @@ Thanks :)
 
 
 
-Extension List (Planned):
+Extension List:
 
   - Adapting to the large 16x32 RGB LED matrix - 6 points
   
-  - Addition of a sountrack/music - 2 points
-  
-  - The ability to pause the game at any time - 1 point
-  
-  - Adding images for level completion / display aesthetic - 1 point
+  - Addition of a soundtrack/music/sounds/speaker/tones (We added sounds for LostBall, GameOver, HitBlock, HitPaddle, and HitWall) - 1 or 2 points
   
   - Shield for controller - (at least) 1 point
-  
-  
-
-Extension List (Completed):
-
-  - A Speaker and sounds/tones – 1 point
-  
-  - Increasing the speed of the game/ball(s) 
-
