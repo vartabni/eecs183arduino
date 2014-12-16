@@ -30,7 +30,7 @@ public:
     delaySpeed = 250;
     paddlePos = 0;
     lives = 3;
-    level = 4;
+    level = 0;
     paddleHeight = 7;
     paused = true;
     ballLeft = true;
@@ -235,12 +235,12 @@ void loop()
 //  Serial.print(pins.val);
 
   // draw the lower paddle on the board
-  matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(0, 7, 1)); // matrix.Color333(0,0,7) creates a BLUE LED light
-  matrix.drawPixel( board.getPaddlePos() + 1, 15, matrix.Color333(0, 7, 1));  //Turns on the LEDs indicating the paddle
+  matrix.drawPixel( board.getPaddlePos(), 15, matrix.Color333(4, 3, 0)); // matrix.Color333(0,0,7) creates a BLUE LED light
+  matrix.drawPixel( board.getPaddlePos() + 1, 15, matrix.Color333(4, 3, 0));  //Turns on the LEDs indicating the paddle
 
   // draw the upper paddle on the board
-  matrix.drawPixel( board.getPaddlePos(), board.getPaddleHeight(), matrix.Color333(0, 7, 1));
-  matrix.drawPixel( board.getPaddlePos() + 1, board.getPaddleHeight(), matrix.Color333(0, 7, 1));  //Turns on the LEDs indicating the paddle
+  matrix.drawPixel( board.getPaddlePos(), board.getPaddleHeight(), matrix.Color333(4, 3, 0));
+  matrix.drawPixel( board.getPaddlePos() + 1, board.getPaddleHeight(), matrix.Color333(4, 3, 0));  //Turns on the LEDs indicating the paddle
 
   // check for a board with no blocks (strength for all pixels == 0)
   if(board.levelComplete()){     //checks if the level is done
@@ -644,6 +644,9 @@ boolean Board::lostBall(  )
 {
 
   if( ballRow >= 15 || ballCol < 0 || ballCol > 31) {
+    tone(11, 800, 8);
+    delay(200);
+    tone(11, 200, 8);
     return true; 
   }
   return false;
@@ -871,26 +874,59 @@ void Board::displayBlocks(  )
         }
         if (i == 1) {
           if (j <= 7) {
-            matrix.drawPixel(j, i, matrix.Color333(7, 0, 5));
+            matrix.drawPixel(j, i, matrix.Color333(4, 3, 1));
           }
           if (j <= 15 && j > 7 ) {
-            matrix.drawPixel(j, i, matrix.Color333(6, 1, 0));
+            matrix.drawPixel(j, i, matrix.Color333(5, 2, 3));
           }
           if (j <= 23 && j > 15) {
-            matrix.drawPixel(j, i, matrix.Color333(5, 2, 0));
+            matrix.drawPixel(j, i, matrix.Color333(6, 1, 4));
           }
           if (j <= 31 && j > 23) {
-            matrix.drawPixel(j, i, matrix.Color333(4, 3, 0));
+            matrix.drawPixel(j, i, matrix.Color333(7, 0, 5));
           }
         }
         if (i == 2) {
-          matrix.drawPixel(j, i, matrix.Color333(2, 1, 7));
+          if (j <= 7) {
+            matrix.drawPixel(j, i, matrix.Color333(2, 1, 7));
+          }
+          if (j <= 15 && j > 7 ) {
+            matrix.drawPixel(j, i, matrix.Color333(1, 2, 7));
+          }
+          if (j <= 23 && j > 15) {
+            matrix.drawPixel(j, i, matrix.Color333(0, 4, 7));
+          }
+          if (j <= 31 && j > 23) {
+            matrix.drawPixel(j, i, matrix.Color333(0, 1, 7));
+          }
         }
         if (i == 9) {
-          matrix.drawPixel(j, i, matrix.Color333(0, 5, 7));
+          if (j <= 7) {
+            matrix.drawPixel(j, i, matrix.Color333(0, 2, 7));
+          }
+          if (j <= 15 && j > 7 ) {
+            matrix.drawPixel(j, i, matrix.Color333(0, 3, 6));
+          }
+          if (j <= 23 && j > 15) {
+            matrix.drawPixel(j, i, matrix.Color333(1, 4, 4));
+          }
+          if (j <= 31 && j > 23) {
+            matrix.drawPixel(j, i, matrix.Color333(2, 6, 3));
+          }
         }
         if (i == 10) {
-          matrix.drawPixel(j, i, matrix.Color333(2, 6, 2));
+          if (j <= 7) {
+            matrix.drawPixel(j, i, matrix.Color333(2, 6, 2));
+          }
+          if (j <= 15 && j > 7 ) {
+            matrix.drawPixel(j, i, matrix.Color333(1, 7, 2));
+          }
+          if (j <= 23 && j > 15) {
+            matrix.drawPixel(j, i, matrix.Color333(0, 7, 1));
+          }
+          if (j <= 31 && j > 23) {
+            matrix.drawPixel(j, i, matrix.Color333(0, 7, 0));
+          }
         }
       }
     }
@@ -956,7 +992,24 @@ boolean Board::levelComplete(){
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 void gameOver(){
-  printMessage("GameOver");
+//  printMessage("GameOver");
+  tone(11, 1000, 8);
+  delay(80);
+  tone(11, 900, 8);
+  delay(80);
+  tone(11, 800, 8);
+  delay(80);
+  tone(11, 700, 8);
+  delay(80);
+  tone(11, 600, 8);
+  delay(80);
+  tone(11, 500, 8);
+  delay(80);
+  tone(11, 400, 8);
+  delay(80);
+  tone(11, 300, 8);
+  delay(80);
+  tone(11, 200, 8);
   delay(3000);
   resetFunc();
 }
